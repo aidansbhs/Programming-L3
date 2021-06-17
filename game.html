@@ -1,0 +1,120 @@
+<!doctype html>
+
+<head>
+  <title>Dungeon Dashers</title>
+</head>
+
+<body>
+  <canvas id="gameCanvas" width="1600" height="800"></canvas>
+  <script src="player.js"></script>
+</body>
+<script>
+  var canvas, canvasContext;
+
+  window.onload = function () {
+    canvas = document.getElementById('gameCanvas');
+    canvasContext = canvas.getContext('2d');
+
+    setInterval(mainloop, 1000 / 50);
+
+    document.addEventListener('keydown', keyPressed);
+    document.addEventListener('keyup', keyReleased);
+
+  }
+   
+  var setUp = true;
+
+  //movement
+
+  //player 1
+  const A_KEY = 65;
+  const D_KEY = 68;
+  const W_KEY = 87;
+  const S_KEY = 83;
+  const SPACE_KEY = 32;
+  var aKeyPressed = false;
+  var dKeyPressed = false;
+  var wKeyPressed = false;
+  var sKeyPressed = false;
+  var spacePressed = false;
+
+  var gravity = 0.1;
+  var jumpForce = -30;
+  var jumping = false;
+
+
+  //variables 
+
+  //player 1
+  var pXpos = 0;
+  var pYpos = 0;
+  var pXspeed = 5;
+  var pYspeed = 5;
+  const P_SIZE = 40;
+
+  var player = new Player(pXpos, pYpos, P_SIZE, P_SIZE, 'blue', pXspeed, pYspeed);
+
+  function mainloop() {
+    colorRect(0, 0, canvas.width, canvas.height, 'black');
+    player.drawRect();
+    player.playerMovement();
+    player.gravity();
+    // player.depth();
+  }
+
+  function keyPressed(evt) {
+    if (evt.keyCode == A_KEY) {
+      aKeyPressed = true;
+    }
+    if (evt.keyCode == D_KEY) {
+      dKeyPressed = true;
+    }
+    if (evt.keyCode == W_KEY) {
+      wKeyPressed = true;
+    }
+    if (evt.keyCode == S_KEY) {
+      sKeyPressed = true;
+    }
+    if (evt.keyCode == SPACE_KEY) {
+      spacePressed = true;
+    } //player 1
+  } //end of keyPressed
+
+  function keyReleased(evt) {
+    if (evt.keyCode == A_KEY) {
+      aKeyPressed = false;
+    }
+    if (evt.keyCode == D_KEY) {
+      dKeyPressed = false;
+    }
+    if (evt.keyCode == W_KEY) {
+      wKeyPressed = false;
+    }
+    if (evt.keyCode == S_KEY) {
+      sKeyPressed = false;
+    }
+    if (evt.keyCode == SPACE_KEY) {
+      spacePressed = false;
+    } //player 1
+  } //end of keyReleased
+
+  function colorRect(x, y, w, h, c) {
+    canvasContext.fillStyle = c;
+    canvasContext.fillRect(x, y, w, h);
+  }
+</script>
+<style>
+  * {
+    margin: 0px;
+    padding: 0px;
+  }
+
+  canvas {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5vh;
+    display: block;
+  }
+</style>
