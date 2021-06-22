@@ -7,6 +7,7 @@
 <body>
   <canvas id="gameCanvas" width="1600" height="800"></canvas>
   <script src="player.js"></script>
+  <script src="enemy.js"></script>
 </body>
 <script>
   var canvas, canvasContext;
@@ -17,12 +18,17 @@
 
     setInterval(mainloop, 1000 / 50);
 
+    imageAssets = loadImages();
+
     document.addEventListener('keydown', keyPressed);
     document.addEventListener('keyup', keyReleased);
 
   }
-   
+
   var setUp = true;
+  var setUp2 = true;
+  var yWall = 0;
+  var xWall = 0;
 
   //movement
 
@@ -54,12 +60,58 @@
 
   var player = new Player(pXpos, pYpos, P_SIZE, P_SIZE, 'blue', pXspeed, pYspeed);
 
+  var enemies = [];
+
   function mainloop() {
-    colorRect(0, 0, canvas.width, canvas.height, 'black');
+    // drawImage(imageAssets.background1, 0, 0, canvas.width, canvas.height); //bg    
+    colorRect(0, 0, canvas.width, canvas.height, 'grey'); //bg
+    drawLine(canvasContext, [170, 300], [-2, 600], 'black', 5); //diagonal
+    drawLine(canvasContext, [168, 300], [1400, 300], 'black', 5); //straight horizontal
+    colorRect(170, 302.5, canvas.width, canvas.height, 'rgb(160,82,45)'); //brown floor rectangle
+
+    if (setUp2) {
+      for (var i = 0; i < 10; i++) {
+        // createEnemy();
+      }
+      setUp2 = false;
+    }
+
     player.drawRect();
-    player.playerMovement();
-    player.gravity();
-    // player.depth();
+    player.movement();
+    // player.jump();
+    // player.gravity();
+    player.depth();
+      
+    if (enemies.length > 0) {
+      enemies.forEach(function (enemy, i, array) {
+        enemy.drawRect();
+        enemy.movement();
+      });
+    }
+  } //end of mainloop
+
+  function gameSetup() {
+    yWall = canvas.height / 3;
+    xWall = canvas.width / 9;
+  }
+
+  function createEnemy() {
+    eSize = 40;
+    eYpos = canvas.height - eSize;
+    eXpos = Math.floor(Math.random() * (canvas.width - eSize));
+    eXspeed = Math.floor(Math.random() * (12 - 3) + 3);
+    eYspeed = Math.floor(Math.random() * (12 - 3) + 3);
+
+    var enemy = new Enemy(eXpos, eYpos, eSize, eSize, 'yellow', eXspeed, eYspeed);
+
+    enemies.push(enemy);
+  } //end of createEnemy
+
+  function loadImages() { //images are stored here
+    imgs = [];
+    imgs.background1 = new Image();
+    imgs.background1.src = 'imgs/Background/background1.png';
+    return imgs;
   }
 
   function keyPressed(evt) {
@@ -97,6 +149,19 @@
       spacePressed = false;
     } //player 1
   } //end of keyReleased
+
+  function drawImage(src, x, y, w, h) {
+    canvasContext.drawImage(src, x, y, w, h);
+  } //end of drawImage
+
+  function drawLine(canvasContext, begin, end, stroke = 'grey', width = 1) {
+    canvasContext.beginPath();
+    canvasContext.moveTo(...begin);
+    canvasContext.lineTo(...end);
+    canvasContext.stroke();
+    canvasContext.strokeStyle = stroke;
+    canvasContext.lineWidth = width;
+  } //end of drawLine
 
   function colorRect(x, y, w, h, c) {
     canvasContext.fillStyle = c;

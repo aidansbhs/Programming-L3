@@ -14,8 +14,8 @@ class Player {
         canvasContext.fillRect(this.x, this.y, this.w, this.h);
     }
 
-    playerMovement() {
-        if (setUp == true) {
+    movement() {
+        if (setUp) {
             this.x = canvas.width / 2 - this.w;
             this.y = canvas.height - this.h;
             setUp = false;
@@ -34,16 +34,11 @@ class Player {
             }
         }
 
-        if (wKeyPressed && jumping == false) {
-            jumping = true;
-            gravity = jumpForce;
-            this.y += gravity / 9;
-        }
-        if (this.y + this.h >= canvas.height) { //cannot jump more if player xpos is greater than the ground line
-            this.ySpeed = 0;
-            this.y = canvas.height - this.h; //to stop player sinking through the ground
-            jumping = false;
-            gravity = 0;
+        if (wKeyPressed == true) {
+            this.y -= this.ySpeed;
+            if (this.y < 302.5) {
+                this.y = 302.5;
+            }
         }
 
         if (sKeyPressed == true) {
@@ -53,10 +48,38 @@ class Player {
             }
         }
     }
+
+    jump() {
+        if (spacePressed == true && jumping == false) { //jumping
+            jumping = true;
+            gravity = jumpForce; //gravity becomes jump force
+            this.y += gravity / 9;
+        }
+
+        if (this.y + this.h >= canvas.height) { //cannot jump more if player xpos is greater than the ground line
+            this.ySpeed = 0;
+            this.y = canvas.height - this.h; //to stop player sinking through the ground
+            jumping = false;
+            gravity = 0;
+        }
+    }
+
     gravity() {
-        if(gravity > -60 && this.y < canvas.height - this.h){
+        if (gravity > -60 && this.y < canvas.height - this.h) {
             this.y += gravity / 1.8;
             gravity += 2;
+        }
+    }
+    depth() {
+        if (this.y + this.h < canvas.height && wKeyPressed == true) {
+            if (this.y < yWall && this.h >= 20) {
+                this.h -= 0.1;
+                console.log('hit wall');
+            }
+        }
+        if (this.y > 200 && sKeyPressed == true && this.h < 40) {
+            console.log('hi');
+            this.h += 0.1;
         }
     }
 }
