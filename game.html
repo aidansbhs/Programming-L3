@@ -8,6 +8,7 @@
   <canvas id="gameCanvas" width="1600" height="800"></canvas>
   <script src="player.js"></script>
   <script src="enemy.js"></script>
+  <script src="projectiles.js"></script>
 </body>
 <script>
   var canvas, canvasContext;
@@ -23,6 +24,13 @@
     document.addEventListener('keydown', keyPressed);
     document.addEventListener('keyup', keyReleased);
 
+    canvas.addEventListener('mousemove', function (evt) {
+      var mousePos = mouseAction(evt);
+      mouseX = mousePos.x;
+      mouseY = mousePos.y;
+    });
+
+    var mouseX, mouseY;
   }
 
   var setUp = true;
@@ -38,16 +46,19 @@
   const W_KEY = 87;
   const S_KEY = 83;
   const SPACE_KEY = 32;
+  const Q_KEY = 81;
+  const X_KEY = 88;
   var aKeyPressed = false;
   var dKeyPressed = false;
   var wKeyPressed = false;
   var sKeyPressed = false;
   var spacePressed = false;
+  var qKeyPressed = false;
+  var xKeyPressed = false;
 
   var gravity = 0.1;
   var jumpForce = -30;
   var jumping = false;
-
 
   //variables 
 
@@ -58,48 +69,105 @@
   var pYspeed = 5;
   const P_SIZE = 40;
 
+  //line
+  var x1 = 0;
+  var y1 = 0;
+  var x2 = 0;
+  var y2 = 0;
+  var m = 0;
+  var y = 0;;
+
+  // var collision = false;
+  // var left = drawLine(canvasContext, [170, 300], [-2, 600], 'black', 5); pXpos, pYpos, pXpos, pYpos + P_SIZE);
+  // var right = lineLine(170, 300, -2, 600, pXpos + P_SIZE, pYpos, pXpos + P_SIZE, pYpos + P_SIZE);
+  // var top = drawLine(x1, y1, x2, y2, pXpos, pYpos, pXpos + P_SIZE, pYpos);
+  // var bottom = drawLine(x1, y1, x2, y2, pXpos, pYpos + P_SIZE, pXpos + P_SIZE, pYpos + P_SIZE);
+
+  // if (left || right) {
+  // collision = true;
+  // }
+  // return false;
+
   var player = new Player(pXpos, pYpos, P_SIZE, P_SIZE, 'blue', pXspeed, pYspeed);
 
+  //arrays
   var enemies = [];
+  var arrows = [];
 
   function mainloop() {
-    // drawImage(imageAssets.background1, 0, 0, canvas.width, canvas.height); //bg    
-    colorRect(0, 0, canvas.width, canvas.height, 'grey'); //bg
+    drawImage(imageAssets.background1, 0, 0, canvas.width, canvas.height); //bg    
+    // colorRect(0, 0, canvas.width, canvas.height, 'grey'); //bg
     drawLine(canvasContext, [170, 300], [-2, 600], 'black', 5); //diagonal
-    drawLine(canvasContext, [168, 300], [1400, 300], 'black', 5); //straight horizontal
-    colorRect(170, 302.5, canvas.width, canvas.height, 'rgb(160,82,45)'); //brown floor rectangle
+    drawLine(canvasContext, [168, 300], [1600, 300], 'black', 5); //straight horizontal
+    colorRect(170, 302.5, canvas.width, canvas.height, '#8b5a2b'); //brown floor rectangle
+    drawTriangle();
 
     if (setUp2) {
-      for (var i = 0; i < 10; i++) {
-        // createEnemy();
-      }
+      gameSetup();
+      for (var i = 0; i < 3; i++) {
+        createEnemy();
+        }
       setUp2 = false;
     }
+    // console.log(mouseY);
 
     player.drawRect();
+    line();
     player.movement();
     // player.jump();
     // player.gravity();
     player.depth();
-      
-    if (enemies.length > 0) {
+
+    if (enemies.length > 0) { //enemies
       enemies.forEach(function (enemy, i, array) {
         enemy.drawRect();
         enemy.movement();
       });
     }
+
+    if (arrows.length > 0) { //arrows
+      arrows.forEach(function (arrow, i, array) {
+        arrow.drawRect();
+        arrow.arrowMovement();
+
+        if (arrow.outOfbounds() || arrow.collision()) {
+          delete array[i];
+          createEnemy();
+        }
+        arrows = arrows.filter(item => item !== undefined);
+      });
+    }
   } //end of mainloop
 
   function gameSetup() {
-    yWall = canvas.height / 3;
+    yWall = canvas.height / 2.64465;
     xWall = canvas.width / 9;
-  }
+  } //end of gameSetup
+
+  function line() {
+    x1 = 170;
+    y1 = 300;
+    x2 = -2;
+    y2 = 600;
+
+    m = (y2 - y1) / (x2 - x1);
+    // console.log(m);
+    y = m * x1 + y1;
+    // console.log(y);
+  }//end of line
+
+  function loadImages() { //images are stored here
+    imgs = [];
+    imgs.background1 = new Image();
+    imgs.background1.src = 'imgs/Background/background1.png';
+    return imgs;
+  } //end of loadImages
 
   function createEnemy() {
     eSize = 40;
     eYpos = canvas.height - eSize;
-    eXpos = Math.floor(Math.random() * (canvas.width - eSize));
-    eXspeed = Math.floor(Math.random() * (12 - 3) + 3);
+    eXpos = canvas.width;
+    eXspeed = 3;
     eYspeed = Math.floor(Math.random() * (12 - 3) + 3);
 
     var enemy = new Enemy(eXpos, eYpos, eSize, eSize, 'yellow', eXspeed, eYspeed);
@@ -107,11 +175,28 @@
     enemies.push(enemy);
   } //end of createEnemy
 
-  function loadImages() { //images are stored here
-    imgs = [];
-    imgs.background1 = new Image();
-    imgs.background1.src = 'imgs/Background/background1.png';
-    return imgs;
+  function createProjectile() {
+    var aSize = 10;
+    var aYpos = player.y;
+    var aXpos = player.x + player.w / 2;
+    var aXspeed = 7.5;
+
+    var arrow = new Arrow(aXpos, aYpos, aSize, aSize, 'white', aXspeed);
+
+    arrows.push(arrow);
+  } //end of createProjectile
+
+  function mouseAction(evt) {
+    var rect = canvas.getBoundingClientRect();
+    var root = document.documentElement;
+
+    mouseX = evt.clientX - rect.left - root.scrollLeft;
+    mouseY = evt.clientY - rect.top - root.scrollTop;
+
+    return {
+      x: mouseX,
+      y: mouseY
+    }
   }
 
   function keyPressed(evt) {
@@ -129,6 +214,13 @@
     }
     if (evt.keyCode == SPACE_KEY) {
       spacePressed = true;
+    }
+    if (evt.keyCode == Q_KEY) {
+      qKeyPressed = true;
+      createProjectile();
+    }
+    if (evt.keyCode == X_KEY) {
+      xKeyPressed = true;
     } //player 1
   } //end of keyPressed
 
@@ -147,6 +239,12 @@
     }
     if (evt.keyCode == SPACE_KEY) {
       spacePressed = false;
+    }
+    if (evt.keyCode == Q_KEY) {
+      qKeyPressed = false;
+    }
+    if (evt.keyCode == X_KEY) {
+      xKeyPressed = false;
     } //player 1
   } //end of keyReleased
 
@@ -156,17 +254,25 @@
 
   function drawLine(canvasContext, begin, end, stroke = 'grey', width = 1) {
     canvasContext.beginPath();
-    canvasContext.moveTo(...begin);
+    canvasContext.moveTo(...begin); //could make variables for (x,y)
     canvasContext.lineTo(...end);
     canvasContext.stroke();
     canvasContext.strokeStyle = stroke;
     canvasContext.lineWidth = width;
   } //end of drawLine
 
+  function drawTriangle() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 602.5);
+    canvasContext.lineTo(canvas.width, canvas.height);
+    canvasContext.lineTo(168, 304.5);
+    canvasContext.fill();
+  }
+
   function colorRect(x, y, w, h, c) {
     canvasContext.fillStyle = c;
     canvasContext.fillRect(x, y, w, h);
-  }
+  } //end of colorRect
 </script>
 <style>
   * {

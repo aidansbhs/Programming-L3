@@ -15,10 +15,19 @@ class Player {
     }
 
     movement() {
-        if (setUp) {
+        var left = this.x - this.w;
+        var right = this.x;
+        var top = this.y - this.h;
+        var bottom = this.y;
+
+        if (setUp) { //start pos
             this.x = canvas.width / 2 - this.w;
             this.y = canvas.height - this.h;
             setUp = false;
+        }
+
+        if (left || right || top || bottom) {
+            console.log('passed');
         }
 
         if (aKeyPressed == true) {
@@ -33,11 +42,10 @@ class Player {
                 this.x = canvas.width - this.h;
             }
         }
-
         if (wKeyPressed == true) {
             this.y -= this.ySpeed;
-            if (this.y < 302.5) {
-                this.y = 302.5;
+            if (this.y < yWall) {
+                this.y = yWall;
             }
         }
 
@@ -70,16 +78,34 @@ class Player {
             gravity += 2;
         }
     }
+
     depth() {
         if (this.y + this.h < canvas.height && wKeyPressed == true) {
-            if (this.y < yWall && this.h >= 20) {
+            if (this.y > yWall && this.h >= 30) {
                 this.h -= 0.1;
-                console.log('hit wall');
             }
         }
-        if (this.y > 200 && sKeyPressed == true && this.h < 40) {
-            console.log('hi');
+        if (sKeyPressed == true && this.h < 40) {
             this.h += 0.1;
         }
+    }
+
+    hitItem(item) {
+        return (this.x + this.w > item.x && this.x < item.x + item.w) && (this.y + this.h > item.y && this.y < item.y + item.h)
+    }
+
+    hitEnemy(enemy) {
+        return this.hitItem(enemy);
+    }
+
+    collision() {
+        var self = this;
+        var collided = false;
+        enemies.forEach(function (enemy, i) {
+            if (self.hitEnemy(enemy)) {
+                collided = true;
+            }
+        });
+        return collided;
     }
 }

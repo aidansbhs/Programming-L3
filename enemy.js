@@ -20,5 +20,13 @@ class Enemy {
             this.y = canvas.height - this.h;
             setUp2 = false;
         }
+        this.x -= this.xSpeed;
+        if(this.x < 0){ //make it track player for knight class
+            this.xSpeed *= -1;
+        }
+        this.y -= this.ySpeed;
+        if (this.y < yWall || this.y > canvas.height - this.h) {
+            this.ySpeed *= -1;
+        }
     }
 }
