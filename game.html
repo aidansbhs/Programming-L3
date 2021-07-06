@@ -69,13 +69,13 @@
   var pYspeed = 5;
   const P_SIZE = 40;
 
-  //line
-  var x1 = 0;
-  var y1 = 0;
-  var x2 = 0;
-  var y2 = 0;
-  var m = 0;
-  var y = 0;;
+  // //line
+  // var x1 = 0;
+  // var y1 = 0;
+  // var x2 = 0;
+  // var y2 = 0;
+  // var m = 0;
+  // var y = 0;
 
   // var collision = false;
   // var left = drawLine(canvasContext, [170, 300], [-2, 600], 'black', 5); pXpos, pYpos, pXpos, pYpos + P_SIZE);
@@ -106,13 +106,13 @@
       gameSetup();
       for (var i = 0; i < 3; i++) {
         createEnemy();
-        }
+      }
       setUp2 = false;
     }
     // console.log(mouseY);
+    // console.log(mouseX);
 
     player.drawRect();
-    line();
     player.movement();
     // player.jump();
     // player.gravity();
@@ -143,18 +143,6 @@
     yWall = canvas.height / 2.64465;
     xWall = canvas.width / 9;
   } //end of gameSetup
-
-  function line() {
-    x1 = 170;
-    y1 = 300;
-    x2 = -2;
-    y2 = 600;
-
-    m = (y2 - y1) / (x2 - x1);
-    // console.log(m);
-    y = m * x1 + y1;
-    // console.log(y);
-  }//end of line
 
   function loadImages() { //images are stored here
     imgs = [];

@@ -15,22 +15,13 @@ class Player {
     }
 
     movement() {
-        var left = this.x - this.w;
-        var right = this.x;
-        var top = this.y - this.h;
-        var bottom = this.y;
-
         if (setUp) { //start pos
             this.x = canvas.width / 2 - this.w;
             this.y = canvas.height - this.h;
             setUp = false;
         }
 
-        if (left || right || top || bottom) {
-            console.log('passed');
-        }
-
-        if (aKeyPressed == true) {
+        if (aKeyPressed == true && this.y + 1.74 * this.x >= 605) { //y=mx+c for diagonal wall
             this.x -= this.xSpeed;
             if (this.x < 0) {
                 this.x = 0;
@@ -42,7 +33,7 @@ class Player {
                 this.x = canvas.width - this.h;
             }
         }
-        if (wKeyPressed == true) {
+        if (wKeyPressed == true && this.y + 1.74 * this.x >= 605) { //y=mx+c for diagonal wall
             this.y -= this.ySpeed;
             if (this.y < yWall) {
                 this.y = yWall;
