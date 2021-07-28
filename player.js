@@ -71,12 +71,12 @@ class Player {
     }
 
     depth() {
-        if (this.y + this.h < canvas.height && wKeyPressed == true) {
+        if (this.y + this.h < canvas.height && wKeyPressed == true) { //shrinks the player if they are moving up y axis
             if (this.y > yWall && this.h >= 30) {
                 this.h -= 0.1;
             }
         }
-        if (sKeyPressed == true && this.h < 40) {
+        if (sKeyPressed == true && this.h < 40) { //grows if moving towards front of screen
             this.h += 0.1;
         }
     }
@@ -92,11 +92,23 @@ class Player {
     collision() {
         var self = this;
         var collided = false;
+        var health = 100;
         enemies.forEach(function (enemy, i) {
             if (self.hitEnemy(enemy)) {
                 collided = true;
+                if (collided == true) {
+                    health--;
+                    console.log(health);
+                }
+                if(health == 0){
+                    gameOver();
+                }
             }
+            // console.log(collided);
         });
         return collided;
+    }
+    gameOver(){
+       console.log('Game over');
     }
 }

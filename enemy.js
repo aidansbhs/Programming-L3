@@ -15,17 +15,29 @@ class Enemy {
     }
 
     movement() {
-        if (setUp2) {
+        if (setUp3 == true) {
             this.x = canvas.width - this.w;
-            this.y = canvas.height - this.h;
-            setUp2 = false;
+            this.y = Math.floor(Math.random() * (yWall - 0) + yWall);
+            setUp3 = false;
         }
-        this.x -= this.xSpeed;
-        if(this.x < 0){ //make it track player for knight class
-            this.xSpeed *= -1;
+
+        if (this.x <= player.x) {
+            this.x += this.xSpeed;
         }
-        this.y -= this.ySpeed;
-        if (this.y < yWall || this.y > canvas.height - this.h) {
+
+        if(this.x >= player.x){
+            // console.log('working2');
+            this.x -= this.xSpeed;
+        }
+
+        if(this.y <= player.y){
+            this.y += this.ySpeed;
+        }
+        if(this.y >= player.y){
+            this.y -= this.ySpeed;
+        }
+
+        if (this.y <= yWall || this.y > canvas.height - this.h) {
             this.ySpeed *= -1;
         }
     }

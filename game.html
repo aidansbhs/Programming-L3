@@ -35,8 +35,11 @@
 
   var setUp = true;
   var setUp2 = true;
+  var setUp3 = true;
   var yWall = 0;
   var xWall = 0;
+  var maxArrows = 4;
+  var arrowCount = 0;
 
   //movement
 
@@ -69,25 +72,6 @@
   var pYspeed = 5;
   const P_SIZE = 40;
 
-  // //line
-  // var x1 = 0;
-  // var y1 = 0;
-  // var x2 = 0;
-  // var y2 = 0;
-  // var m = 0;
-  // var y = 0;
-
-  // var collision = false;
-  // var left = drawLine(canvasContext, [170, 300], [-2, 600], 'black', 5); pXpos, pYpos, pXpos, pYpos + P_SIZE);
-  // var right = lineLine(170, 300, -2, 600, pXpos + P_SIZE, pYpos, pXpos + P_SIZE, pYpos + P_SIZE);
-  // var top = drawLine(x1, y1, x2, y2, pXpos, pYpos, pXpos + P_SIZE, pYpos);
-  // var bottom = drawLine(x1, y1, x2, y2, pXpos, pYpos + P_SIZE, pXpos + P_SIZE, pYpos + P_SIZE);
-
-  // if (left || right) {
-  // collision = true;
-  // }
-  // return false;
-
   var player = new Player(pXpos, pYpos, P_SIZE, P_SIZE, 'blue', pXspeed, pYspeed);
 
   //arrays
@@ -96,7 +80,6 @@
 
   function mainloop() {
     drawImage(imageAssets.background1, 0, 0, canvas.width, canvas.height); //bg    
-    // colorRect(0, 0, canvas.width, canvas.height, 'grey'); //bg
     drawLine(canvasContext, [170, 300], [-2, 600], 'black', 5); //diagonal
     drawLine(canvasContext, [168, 300], [1600, 300], 'black', 5); //straight horizontal
     colorRect(170, 302.5, canvas.width, canvas.height, '#8b5a2b'); //brown floor rectangle
@@ -117,6 +100,7 @@
     // player.jump();
     // player.gravity();
     player.depth();
+    player.collision();
 
     if (enemies.length > 0) { //enemies
       enemies.forEach(function (enemy, i, array) {
@@ -133,6 +117,7 @@
         if (arrow.outOfbounds() || arrow.collision()) {
           delete array[i];
           createEnemy();
+          arrowCount -= 1;
         }
         arrows = arrows.filter(item => item !== undefined);
       });
@@ -147,14 +132,14 @@
   function loadImages() { //images are stored here
     imgs = [];
     imgs.background1 = new Image();
-    imgs.background1.src = 'imgs/Background/background1.png';
+    imgs.background1.src = 'imgs/Background/background1.png'; //background
     return imgs;
   } //end of loadImages
 
   function createEnemy() {
     eSize = 40;
-    eYpos = canvas.height - eSize;
-    eXpos = canvas.width;
+    eYpos = Math.floor(Math.random() * (yWall - 0) + yWall); //random y wall spawn point 
+    eXpos = Math.floor(Math.random() * (1600 - 1400) + 1600); //makes it random spawing outside maps so won't spawn inside of each other
     eXspeed = 3;
     eYspeed = Math.floor(Math.random() * (12 - 3) + 3);
 
@@ -168,10 +153,11 @@
     var aYpos = player.y;
     var aXpos = player.x + player.w / 2;
     var aXspeed = 7.5;
-
+    
     var arrow = new Arrow(aXpos, aYpos, aSize, aSize, 'white', aXspeed);
 
     arrows.push(arrow);
+    arrowCount += 1;
   } //end of createProjectile
 
   function mouseAction(evt) {
@@ -205,7 +191,9 @@
     }
     if (evt.keyCode == Q_KEY) {
       qKeyPressed = true;
-      createProjectile();
+      if(arrowCount < maxArrows){ //makes it so there is can only be a max of 4 arrows on the screen otherwise the player can 'spam' the ability
+        createProjectile();
+      }
     }
     if (evt.keyCode == X_KEY) {
       xKeyPressed = true;
