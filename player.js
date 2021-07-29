@@ -21,21 +21,37 @@ class Player {
             setUp = false;
         }
 
-        if (aKeyPressed == true && this.y + 1.74 * this.x >= 605) { //y=mx+c for diagonal wall
-            this.x -= this.xSpeed;
-            if (this.x < 0) {
+        if (aKeyPressed == true) { 
+            if (this.y + 1.74 * this.x <= 605) { //y=mx+c for diagonal wall
+                let rise = 1.74 / 2.74;
+                let run = 1 / 2.74;
+                this.x -= this.xSpeed * run; //makes it able to 'slide' up the wall instead of stopping by calculating the rise and run and substituting into speed
+                this.y += this.xSpeed * rise;
+            } else {
+                this.x -= this.xSpeed;
+            }
+            if (this.x < 0) { // can't go lower than ground
                 this.x = 0;
             }
         }
+
         if (dKeyPressed == true) {
             this.x += this.xSpeed;
             if (this.x + this.w > canvas.width) {
                 this.x = canvas.width - this.h;
             }
         }
-        if (wKeyPressed == true && this.y + 1.74 * this.x >= 605) { //y=mx+c for diagonal wall
-            this.y -= this.ySpeed;
-            if (this.y < yWall) {
+
+        if (wKeyPressed == true) { 
+            if (this.y + 1.74 * this.x <= 605) { //y=mx+c for diagonal wall
+                let rise = 1.74 / 2.74;
+                let run = 1 / 2.74;
+                this.y -= this.ySpeed * rise; //makes it able to 'slide' up the wall instead of stopping by calculating the rise and run and substituting into speed
+                this.x += this.ySpeed * run;
+            } else {
+                this.y -= this.ySpeed;
+            }
+            if (this.y < yWall) { //can't go above the y wall
                 this.y = yWall;
             }
         }
@@ -97,10 +113,11 @@ class Player {
             if (self.hitEnemy(enemy)) {
                 collided = true;
                 if (collided == true) {
-                    health--;
-                    console.log(health);
+                    health--; //decrease the health if touching
+                    enemy.xSpeed = 0; //stops enemy going in player
+                    // console.log(health);
                 }
-                if(health == 0){
+                if (health == 0) {
                     gameOver();
                 }
             }
@@ -108,7 +125,7 @@ class Player {
         });
         return collided;
     }
-    gameOver(){
-       console.log('Game over');
+    gameOver() {
+      console.log("Game Over");
     }
 }

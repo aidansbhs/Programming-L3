@@ -25,15 +25,14 @@ class Enemy {
             this.x += this.xSpeed;
         }
 
-        if(this.x >= player.x){
-            // console.log('working2');
+        if (this.x >= player.x) {
             this.x -= this.xSpeed;
         }
 
-        if(this.y <= player.y){
+        if (this.y <= player.y) {
             this.y += this.ySpeed;
         }
-        if(this.y >= player.y){
+        if (this.y >= player.y) {
             this.y -= this.ySpeed;
         }
 
@@ -41,4 +40,11 @@ class Enemy {
             this.ySpeed *= -1;
         }
     }
+    collision(){ //self collision
+        enemy.forEach(function (enemy, i, array) {
+            if(this.x > enemy[i].x){
+                console.log('working');
+            }
+        });
+    }    
 }

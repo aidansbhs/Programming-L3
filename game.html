@@ -106,6 +106,7 @@
       enemies.forEach(function (enemy, i, array) {
         enemy.drawRect();
         enemy.movement();
+        // enemy.collision();
       });
     }
 
@@ -115,9 +116,11 @@
         arrow.arrowMovement();
 
         if (arrow.outOfbounds() || arrow.collision()) {
-          delete array[i];
+          delete array[i];  
           createEnemy();
-          arrowCount -= 1;
+          if (arrowCount >= 0) {
+            arrowCount -= 1;
+          }
         }
         arrows = arrows.filter(item => item !== undefined);
       });
@@ -139,7 +142,8 @@
   function createEnemy() {
     eSize = 40;
     eYpos = Math.floor(Math.random() * (yWall - 0) + yWall); //random y wall spawn point 
-    eXpos = Math.floor(Math.random() * (1600 - 1400) + 1600); //makes it random spawing outside maps so won't spawn inside of each other
+    eXpos = Math.floor(Math.random() * (1600 - 1400) +
+    1600); //makes it random spawing outside maps so won't spawn inside of each other
     eXspeed = 3;
     eYspeed = Math.floor(Math.random() * (12 - 3) + 3);
 
@@ -153,7 +157,7 @@
     var aYpos = player.y;
     var aXpos = player.x + player.w / 2;
     var aXspeed = 7.5;
-    
+
     var arrow = new Arrow(aXpos, aYpos, aSize, aSize, 'white', aXspeed);
 
     arrows.push(arrow);
@@ -191,7 +195,7 @@
     }
     if (evt.keyCode == Q_KEY) {
       qKeyPressed = true;
-      if(arrowCount < maxArrows){ //makes it so there is can only be a max of 4 arrows on the screen otherwise the player can 'spam' the ability
+      if (arrowCount < maxArrows) { //makes it so there is can only be a max of 4 arrows on the screen otherwise the player can 'spam' the ability
         createProjectile();
       }
     }
