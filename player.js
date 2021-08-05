@@ -21,7 +21,7 @@ class Player {
             setUp = false;
         }
 
-        if (aKeyPressed == true) { 
+        if (aKeyPressed == true) {
             if (this.y + 1.74 * this.x <= 605) { //y=mx+c for diagonal wall
                 let rise = 1.74 / 2.74;
                 let run = 1 / 2.74;
@@ -42,7 +42,7 @@ class Player {
             }
         }
 
-        if (wKeyPressed == true) { 
+        if (wKeyPressed == true) {
             if (this.y + 1.74 * this.x <= 605) { //y=mx+c for diagonal wall
                 let rise = 1.74 / 2.74;
                 let run = 1 / 2.74;
@@ -91,9 +91,15 @@ class Player {
             if (this.y > yWall && this.h >= 30) {
                 this.h -= 0.1;
             }
+            if (aKeyPressed == true && this.w >= 30) {
+                this.w -= 0.1; //only decreases size if player is also going up (need to improve)
+            }
         }
         if (sKeyPressed == true && this.h < 40) { //grows if moving towards front of screen
             this.h += 0.1;
+        }
+        if (dKeyPressed == true && this.w < 40) {
+            this.w += 0.1; //only increases size if player is also going down (need to improve)
         }
     }
 
@@ -108,24 +114,31 @@ class Player {
     collision() {
         var self = this;
         var collided = false;
-        var health = 100;
-        enemies.forEach(function (enemy, i) {
-            if (self.hitEnemy(enemy)) {
+        enemies.forEach(function (enemy, i) { //for each enemy
+            if (self.hitEnemy(enemy)) { //if touching
                 collided = true;
-                if (collided == true) {
-                    health--; //decrease the health if touching
+                if (collided == true && health > 0) {
+                    health -= 1; //decrease the health if touching
                     enemy.xSpeed = 0; //stops enemy going in player
+                    enemy.ySpeed = 0; //stops enemy going in player
                     // console.log(health);
                 }
+                if(xKeyPressed == true && collided == true){
+                    // console.log('working');
+                    // hitEnemy();
+                }
                 if (health == 0) {
-                    gameOver();
+                    dead = true;
                 }
             }
             // console.log(collided);
         });
         return collided;
     }
+
     gameOver() {
-      console.log("Game Over");
+        canvasContext.font = '100px serif';
+        canvasContext.fillStyle = 'white';
+        canvasContext.fillText('Game Over', canvas.width / 2.7, canvas.height / 1.5);
     }
 }

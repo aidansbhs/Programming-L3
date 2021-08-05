@@ -35,16 +35,8 @@ class Enemy {
         if (this.y >= player.y) {
             this.y -= this.ySpeed;
         }
-
-        if (this.y <= yWall || this.y > canvas.height - this.h) {
-            this.ySpeed *= -1;
+        if (this.y < yWall) {
+            this.y = yWall;
         }
     }
-    collision(){ //self collision
-        enemy.forEach(function (enemy, i, array) {
-            if(this.x > enemy[i].x){
-                console.log('working');
-            }
-        });
-    }    
 }

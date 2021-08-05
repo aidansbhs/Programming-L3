@@ -43,6 +43,7 @@
 
   //movement
 
+
   //player 1
   const A_KEY = 65;
   const D_KEY = 68;
@@ -56,12 +57,14 @@
   var wKeyPressed = false;
   var sKeyPressed = false;
   var spacePressed = false;
-  var qKeyPressed = false;
-  var xKeyPressed = false;
+  var qKeyPressed = false; //shoot
+  var xKeyPressed = false; //attack
 
   var gravity = 0.1;
   var jumpForce = -30;
   var jumping = false;
+  var health = 100;
+  var dead = false;
 
   //variables 
 
@@ -79,51 +82,56 @@
   var arrows = [];
 
   function mainloop() {
-    drawImage(imageAssets.background1, 0, 0, canvas.width, canvas.height); //bg    
-    drawLine(canvasContext, [170, 300], [-2, 600], 'black', 5); //diagonal
-    drawLine(canvasContext, [168, 300], [1600, 300], 'black', 5); //straight horizontal
-    colorRect(170, 302.5, canvas.width, canvas.height, '#8b5a2b'); //brown floor rectangle
-    drawTriangle();
+    if (dead == false) {
+      drawImage(imageAssets.background1, 0, 0, canvas.width, canvas.height); //bg    
+      drawLine(canvasContext, [170, 300], [-2, 600], 'black', 5); //diagonal
+      drawLine(canvasContext, [168, 300], [1600, 300], 'black', 5); //straight horizontal
+      colorRect(170, 302.5, canvas.width, canvas.height, '#8b5a2b'); //brown floor rectangle
+      drawTriangle();
 
-    if (setUp2) {
-      gameSetup();
-      for (var i = 0; i < 3; i++) {
-        createEnemy();
-      }
-      setUp2 = false;
-    }
-    // console.log(mouseY);
-    // console.log(mouseX);
-
-    player.drawRect();
-    player.movement();
-    // player.jump();
-    // player.gravity();
-    player.depth();
-    player.collision();
-
-    if (enemies.length > 0) { //enemies
-      enemies.forEach(function (enemy, i, array) {
-        enemy.drawRect();
-        enemy.movement();
-        // enemy.collision();
-      });
-    }
-
-    if (arrows.length > 0) { //arrows
-      arrows.forEach(function (arrow, i, array) {
-        arrow.drawRect();
-        arrow.arrowMovement();
-
-        if (arrow.outOfbounds() || arrow.collision()) {
-          delete array[i];  
+      if (setUp2) {
+        gameSetup();
+        for (var i = 0; i < 3; i++) {
           createEnemy();
-          if (arrowCount >= 0) {
-            arrowCount -= 1;
-          }
         }
-        arrows = arrows.filter(item => item !== undefined);
-      });
+        setUp2 = false;
+      }
+      // console.log(mouseY);
+      // console.log(mouseX);
+
+      player.drawRect();
+      player.movement();
+      // player.jump();
+      // player.gravity();
+      player.depth();
+      player.collision();
+      // player.gameOver();
+
+      if (enemies.length > 0) { //enemies
+        enemies.forEach(function (enemy, i, array) {
+          enemy.drawRect();
+          enemy.movement();
+          // enemy.collision();
+        });
+      }
+
+      if (arrows.length > 0) { //arrows
+        arrows.forEach(function (arrow, i, array) {
+          arrow.drawRect();
+          arrow.arrowMovement();
+
+          if (arrow.outOfbounds() || arrow.collision()) { //if the bullet hits enemy or goes out of canvas it will be deleted
+            delete array[i];
+            createEnemy(); //works for both outofBounds and collision (bug)
+            if (arrowCount >= 0) { //so arrowCount can't go into negatives
+              arrowCount -= 1;
+            }
+          }
+          arrows = arrows.filter(item => item !== undefined); 
+        });
+      }
+    } else {
+      player.gameOver();
     }
   } //end of mainloop
 
@@ -143,7 +151,7 @@
     eSize = 40;
     eYpos = Math.floor(Math.random() * (yWall - 0) + yWall); //random y wall spawn point 
     eXpos = Math.floor(Math.random() * (1600 - 1400) +
-    1600); //makes it random spawing outside maps so won't spawn inside of each other
+      1600); //makes it random spawing outside maps so won't spawn inside of each other
     eXspeed = 3;
     eYspeed = Math.floor(Math.random() * (12 - 3) + 3);
 
@@ -195,7 +203,8 @@
     }
     if (evt.keyCode == Q_KEY) {
       qKeyPressed = true;
-      if (arrowCount < maxArrows) { //makes it so there is can only be a max of 4 arrows on the screen otherwise the player can 'spam' the ability
+      if (arrowCount <
+        maxArrows) { //makes it so there is can only be a max of 4 arrows on the screen otherwise the player can 'spam' the ability
         createProjectile();
       }
     }
