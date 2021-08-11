@@ -123,7 +123,7 @@ class Player {
                     enemy.ySpeed = 0; //stops enemy going in player
                     // console.log(health);
                 }
-                if(xKeyPressed == true && collided == true){
+                if (xKeyPressed == true && collided == true) {
                     // console.log('working');
                     // hitEnemy();
                 }
@@ -140,5 +140,6 @@ class Player {
         canvasContext.font = '100px serif';
         canvasContext.fillStyle = 'white';
         canvasContext.fillText('Game Over', canvas.width / 2.7, canvas.height / 1.5);
+        drawImage(imageAssets.background1, 0, 0, canvas.width, canvas.height); //bg    
     }
 }

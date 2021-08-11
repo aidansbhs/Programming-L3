@@ -1,7 +1,7 @@
 <!doctype html>
 
 <head>
-  <title>Dungeon Dashers</title>
+  <title>Alcazar age</title>
 </head>
 
 <body>
@@ -40,6 +40,9 @@
   var xWall = 0;
   var maxArrows = 4;
   var arrowCount = 0;
+
+  var gameStart = false;
+  var mainMenu = true;
 
   //movement
 
@@ -82,56 +85,64 @@
   var arrows = [];
 
   function mainloop() {
-    if (dead == false) {
-      drawImage(imageAssets.background1, 0, 0, canvas.width, canvas.height); //bg    
-      drawLine(canvasContext, [170, 300], [-2, 600], 'black', 5); //diagonal
-      drawLine(canvasContext, [168, 300], [1600, 300], 'black', 5); //straight horizontal
-      colorRect(170, 302.5, canvas.width, canvas.height, '#8b5a2b'); //brown floor rectangle
-      drawTriangle();
+    if (mainMenu == false) {
+      if (dead == false) {
+        if (gameStart == true) {
+          drawImage(imageAssets.background1, 0, 0, canvas.width, canvas.height); //bg    
+          drawLine(canvasContext, [170, 300], [-2, 600], 'black', 5); //diagonal
+          drawLine(canvasContext, [168, 300], [1600, 300], 'black', 5); //straight horizontal
+          colorRect(170, 302.5, canvas.width, canvas.height, '#8b5a2b'); //brown floor rectangle
+          drawTriangle();
 
-      if (setUp2) {
-        gameSetup();
-        for (var i = 0; i < 3; i++) {
-          createEnemy();
-        }
-        setUp2 = false;
-      }
-      // console.log(mouseY);
-      // console.log(mouseX);
-
-      player.drawRect();
-      player.movement();
-      // player.jump();
-      // player.gravity();
-      player.depth();
-      player.collision();
-      // player.gameOver();
-
-      if (enemies.length > 0) { //enemies
-        enemies.forEach(function (enemy, i, array) {
-          enemy.drawRect();
-          enemy.movement();
-          // enemy.collision();
-        });
-      }
-
-      if (arrows.length > 0) { //arrows
-        arrows.forEach(function (arrow, i, array) {
-          arrow.drawRect();
-          arrow.arrowMovement();
-
-          if (arrow.outOfbounds() || arrow.collision()) { //if the bullet hits enemy or goes out of canvas it will be deleted
-            delete array[i];
-            createEnemy(); //works for both outofBounds and collision (bug)
-            if (arrowCount >= 0) { //so arrowCount can't go into negatives
-              arrowCount -= 1;
+          if (setUp2) {
+            gameSetup();
+            for (var i = 0; i < 3; i++) {
+              createEnemy();
             }
+            setUp2 = false;
           }
-          arrows = arrows.filter(item => item !== undefined); 
-        });
+          // console.log(mouseY);
+          // console.log(mouseX);
+
+          player.drawRect();
+          player.movement();
+          // player.jump();
+          // player.gravity();
+          player.depth();
+          player.collision();
+          // player.gameOver();
+
+          if (enemies.length > 0) { //enemies
+            enemies.forEach(function (enemy, i, array) {
+              enemy.drawRect();
+              enemy.movement();
+            });
+          }
+
+          if (arrows.length > 0) { //arrows
+            arrows.forEach(function (arrow, i, array) {
+              arrow.drawRect();
+              arrow.arrowMovement();
+
+              // if (arrow.outOfbounds() || arrow.collision()) { //if the bullet hits enemy or goes out of canvas it will be deleted
+              if (arrow.collision()) {
+                if (arrow.outOfbounds()) {
+                  delete array[i];
+                  if (arrowCount >= 0) { //so arrowCount can't go into negatives
+                    arrowCount -= 1;
+                  }
+                }
+                createEnemy(); //works for both outofBounds and collision (bug)
+              }
+              arrows = arrows.filter(item => item !== undefined);
+            });
+          }
+        }
+      } else if (dead == true) {
+        player.gameOver();
       }
     } else {
-      player.gameOver();
+      drawImage(imageAssets.menuScreen, 0, 0, canvas.width, canvas.height); //menu screen
     }
   } //end of mainloop
 
@@ -144,6 +155,8 @@
     imgs = [];
     imgs.background1 = new Image();
     imgs.background1.src = 'imgs/Background/background1.png'; //background
+    imgs.menuScreen = new Image();
+    imgs.menuScreen.src = 'imgs/Background/menuScreen.png'; //menu screen
     return imgs;
   } //end of loadImages
 
@@ -204,7 +217,8 @@
     if (evt.keyCode == Q_KEY) {
       qKeyPressed = true;
       if (arrowCount <
-        maxArrows) { //makes it so there is can only be a max of 4 arrows on the screen otherwise the player can 'spam' the ability
+        maxArrows
+      ) { //makes it so there is can only be a max of 4 arrows on the screen otherwise the player can 'spam' the ability
         createProjectile();
       }
     }
