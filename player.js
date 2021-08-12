@@ -128,7 +128,7 @@ class Player {
                     // hitEnemy();
                 }
                 if (health == 0) {
-                    dead = true;
+                    gameState = 'gameOver';
                 }
             }
             // console.log(collided);
