@@ -30,6 +30,7 @@ class Arrow {
             if(self.hitEnemy(enemy)){
                 delete enemies[i];
                 collided = true;
+                deleted = true;
             }
         });
         enemies = enemies.filter(item => item !== undefined);

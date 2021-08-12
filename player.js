@@ -64,27 +64,27 @@ class Player {
         }
     }
 
-    jump() {
-        if (spacePressed == true && jumping == false) { //jumping
-            jumping = true;
-            gravity = jumpForce; //gravity becomes jump force
-            this.y += gravity / 9;
-        }
+    // jump() {
+    //     if (spacePressed == true && jumping == false) { //jumping
+    //         jumping = true;
+    //         gravity = jumpForce; //gravity becomes jump force
+    //         this.y += gravity / 9;
+    //     }
 
-        if (this.y + this.h >= canvas.height) { //cannot jump more if player xpos is greater than the ground line
-            this.ySpeed = 0;
-            this.y = canvas.height - this.h; //to stop player sinking through the ground
-            jumping = false;
-            gravity = 0;
-        }
-    }
+    //     if (this.y + this.h >= canvas.height) { //cannot jump more if player xpos is greater than the ground line
+    //         this.ySpeed = 0;
+    //         this.y = canvas.height - this.h; //to stop player sinking through the ground
+    //         jumping = false;
+    //         gravity = 0;
+    //     }
+    // }
 
-    gravity() {
-        if (gravity > -60 && this.y < canvas.height - this.h) {
-            this.y += gravity / 1.8;
-            gravity += 2;
-        }
-    }
+    // gravity() {
+    //     if (gravity > -60 && this.y < canvas.height - this.h) {
+    //         this.y += gravity / 1.8;
+    //         gravity += 2;
+    //     }
+    // }
 
     depth() {
         if (this.y + this.h < canvas.height && wKeyPressed == true) { //shrinks the player if they are moving up y axis
@@ -123,15 +123,14 @@ class Player {
                     enemy.ySpeed = 0; //stops enemy going in player
                     // console.log(health);
                 }
-                if (xKeyPressed == true && collided == true) {
-                    // console.log('working');
-                    // hitEnemy();
-                }
+                // if (xKeyPressed == true && collided == true) {
+                //     // console.log('working');
+                //     // hitEnemy();
+                // }
                 if (health == 0) {
                     gameState = 'gameOver';
                 }
             }
-            // console.log(collided);
         });
         return collided;
     }
@@ -140,6 +139,5 @@ class Player {
         canvasContext.font = '100px serif';
         canvasContext.fillStyle = 'white';
         canvasContext.fillText('Game Over', canvas.width / 2.7, canvas.height / 1.5);
-        drawImage(imageAssets.background1, 0, 0, canvas.width, canvas.height); //bg    
     }
 }
