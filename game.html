@@ -8,6 +8,7 @@
   <canvas id="gameCanvas" width="1600" height="800"></canvas>
   <script src="player.js"></script>
   <script src="enemy.js"></script>
+  <script src="archer.js"></script>
   <script src="projectiles.js"></script>
 </body>
 <script>
@@ -16,7 +17,6 @@
   window.onload = function () {
     canvas = document.getElementById('gameCanvas');
     canvasContext = canvas.getContext('2d');
-
 
     imageAssets = loadImages();
 
@@ -35,17 +35,13 @@
       mouseX = mousePos.x;
       mouseY = mousePos.y;
       mouseDown = true;
-      // mouseUp = false;
       buttons();
     });
 
     canvas.addEventListener("mouseup", function (evt) {
       buttons("run");
       mouseDown = false;
-      // mouseUp = true;
     });
-
-
 
     setInterval(mainloop, 1000 / 50);
   }
@@ -53,11 +49,11 @@
   var mouseX = 0;
   var mouseY = 0;
   var mouseDown = false;
-  // var mouseUp = false;
 
-  var setUp = true;
-  var setUp2 = true;
-  var setUp3 = true;
+  var pSetUp = true;
+  var eSetUp = true;
+  var aSetUp = true;
+  var gameStart = true;
   var yWall = 0;
   var xWall = 0;
   var maxArrows = 4;
@@ -89,8 +85,6 @@
   var jumping = false;
   var health = 100;
 
-  var deleted = false;
-
   //variables 
 
   //player 1
@@ -104,19 +98,23 @@
 
   //arrays
   var enemies = [];
-  // var archer = new E
-  var arrows = [];
+  var archers = [];
+  var playerArrows = [];
+  var archerArrows = [];
 
   function mainloop() {
     console.log(gameState);
     drawImage(imageAssets.background1, 0, 0, canvas.width, canvas.height); //bg    
     if (gameState == 'playing') {
-      if (setUp2) {
+      if (gameStart == true) {
         gameSetup();
         for (var i = 0; i < 3; i++) { //for loop for enemies so it pushes three at start
           createEnemy();
         }
-        setUp2 = false;
+        for (var i = 0; i < 3; i++) {
+          createArcher();
+        }
+        gameStart = false;
       }
 
       if (singlePlayer == true) {
@@ -131,6 +129,7 @@
       player.movement();
       player.depth();
       player.collision();
+      player.attacking();
 
       if (enemies.length > 0) { //enemies
         enemies.forEach(function (enemy, i, array) {
@@ -139,30 +138,57 @@
         });
       }
 
-      if (arrows.length > 0) { //arrows
-        arrows.forEach(function (arrow, i, array) {
-          arrow.drawRect();
-          arrow.arrowMovement();
+      if (archers.length > 0) { //archers
+        archers.forEach(function (archer, i, array) {
+          archer.drawRect();
+          archer.movement();
+          // archer.shooting();
+        });
+      }
+
+      if (playerArrows.length > 0) { //arrows
+        playerArrows.forEach(function (playerArrow, i, array) {
+          playerArrow.drawRect();
+          playerArrow.movement();
 
 
-          if (arrow.outOfbounds()) {
+          if (playerArrow.outOfbounds()) {
             delete array[i]; //if the bullet goes out of canvas it will be deleted
             console.log(array[i]);
-            arrows = arrows.filter(item => item !== undefined); //checks if arrows are undefined (from when they get deleted) and will actually remove them 
+            playerArrows = playerArrows.filter(item => item !==
+              undefined
+            ); //checks if arrows are undefined (from when they get deleted) and will actually remove them 
             if (arrowCount >= 0) { //so arrowCount can't go into negatives
               arrowCount -= 1;
             }
           }
-          if (arrow.collision()) {
+          if (playerArrow.enemyCollision()) {
             delete array[i]; //same thing for when bullet hits enemy
             createEnemy(); //creates a new enemy 
-            arrows = arrows.filter(item => item !== undefined); //checks if arrows are undefined (from when they get deleted) and will actually remove them
+            playerArrows = playerArrows.filter(item => item !==
+              undefined
+            ); //checks if arrows are undefined (from when they get deleted) and will actually remove them
+            if (arrowCount >= 0) { //so arrowCount can't go into negatives
+              arrowCount -= 1;
+            }
+          }
+          if (playerArrow.archerCollision()) {
+            delete array[i]; //same thing for when bullet hits enemy
+            createArcher(); //creates a new enemy 
+            playerArrows = playerArrows.filter(item => item !==
+              undefined
+            ); //checks if arrows are undefined (from when they get deleted) and will actually remove them
             if (arrowCount >= 0) { //so arrowCount can't go into negatives
               arrowCount -= 1;
             }
           }
         });
       } //end of arrows forEach
+
+      // if(archerProjectiles.length > 0){
+      //   archerProjectiles.forEach(function ())
+      // }
+
 
     } else if (gameState == 'mainMenu') {
       drawMenu();
@@ -232,8 +258,8 @@
   function createEnemy() {
     eSize = 40;
     eYpos = Math.floor(Math.random() * (yWall - 0) + yWall); //random y wall spawn point 
-    eXpos = Math.floor(Math.random() * (1600 - 1400) +
-      1600); //makes it random spawing outside maps so won't spawn inside of each other
+    eXpos = Math.floor(Math.random() * (1650 - 1400) +
+      1650); //makes it random spawing outside maps so won't spawn inside of each other
     eXspeed = 3;
     eYspeed = Math.floor(Math.random() * (12 - 3) + 3);
 
@@ -242,16 +268,38 @@
     enemies.push(enemy);
   } //end of createEnemy
 
-  function createProjectile() {
+  function createArcher() {
+    aSize = 40;
+    aYpos = Math.floor(Math.random() * (yWall - 0) + yWall);
+    aXpos = Math.floor(Math.random() * (1600 - 1400) +
+      1600); //makes it random spawing outside maps so won't spawn inside of each other;
+    aXspeed = 5;
+    aYspeed = Math.floor(Math.random() * (12 - 3) + 3);
+
+    var archer = new Archer(aXpos, aYpos, aSize, aSize, 'orange', aXspeed, aYspeed);
+
+    archers.push(archer);
+  } //end of createArcher
+
+
+
+  function createProjectile(direction, x, y, width, type) {
     var aSize = 10;
-    var aYpos = player.y;
-    var aXpos = player.x + player.w / 2;
-    var aXspeed = 7.5;
+    var aYpos = y;
+    var aXpos = x + width / 2;
+    var aXspeed = 7.5 * direction;
 
-    var arrow = new Arrow(aXpos, aYpos, aSize, aSize, 'white', aXspeed);
+    var playerArrow = new playerProjectile(aXpos, aYpos, aSize, aSize, 'white', aXspeed);
+    var archerArrow = new archerProjectile(aXpos, aYpos, aSize, aSize, 'red', aXspeed);
 
-    arrows.push(arrow);
-    arrowCount += 1;
+    if (type == "player") {
+      playerArrows.push(playerArrow);
+      arrowCount += 1;
+
+    } else if (type == 'archer') {
+      archerArrows.push(archerArrow);
+      arrowCount += 1;
+    }
   } //end of createProjectile
 
   function mouseAction(evt) {
@@ -288,7 +336,7 @@
       if (arrowCount <
         maxArrows
       ) { //makes it so there is can only be a max of 4 arrows on the screen otherwise the player can 'spam' the ability
-        createProjectile();
+        createProjectile(1, player.x, player.y, player.w, "player");
       }
     }
     if (evt.keyCode == X_KEY) {

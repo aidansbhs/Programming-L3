@@ -15,10 +15,10 @@ class Player {
     }
 
     movement() {
-        if (setUp) { //start pos
+        if (pSetUp) { //start pos
             this.x = canvas.width / 2 - this.w;
             this.y = canvas.height - this.h;
-            setUp = false;
+            pSetUp = false;
         }
 
         if (aKeyPressed == true) {
@@ -119,20 +119,31 @@ class Player {
                 collided = true;
                 if (collided == true && health > 0) {
                     health -= 1; //decrease the health if touching
-                    enemy.xSpeed = 0; //stops enemy going in player
-                    enemy.ySpeed = 0; //stops enemy going in player
+                    // enemy.xSpeed = 0; //stops enemy going in player
+                    // enemy.ySpeed = 0; //stops enemy going in player
                     // console.log(health);
                 }
-                // if (xKeyPressed == true && collided == true) {
-                //     // console.log('working');
-                //     // hitEnemy();
-                // }
                 if (health == 0) {
                     gameState = 'gameOver';
                 }
             }
         });
         return collided;
+    }
+
+    attacking() {
+        var self = this;
+        var collided = false;
+        if (xKeyPressed == true) {
+            enemies.forEach(function (enemy, i) {
+                if (self.hitEnemy(enemy)) {
+                    delete enemies[i];
+                    collided = true;
+                }
+            });
+            enemies = enemies.filter(item => item !== undefined);
+            return collided;
+        }
     }
 
     gameOver() {
