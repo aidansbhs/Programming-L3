@@ -64,28 +64,6 @@ class Player {
         }
     }
 
-    // jump() {
-    //     if (spacePressed == true && jumping == false) { //jumping
-    //         jumping = true;
-    //         gravity = jumpForce; //gravity becomes jump force
-    //         this.y += gravity / 9;
-    //     }
-
-    //     if (this.y + this.h >= canvas.height) { //cannot jump more if player xpos is greater than the ground line
-    //         this.ySpeed = 0;
-    //         this.y = canvas.height - this.h; //to stop player sinking through the ground
-    //         jumping = false;
-    //         gravity = 0;
-    //     }
-    // }
-
-    // gravity() {
-    //     if (gravity > -60 && this.y < canvas.height - this.h) {
-    //         this.y += gravity / 1.8;
-    //         gravity += 2;
-    //     }
-    // }
-
     depth() {
         if (this.y + this.h < canvas.height && wKeyPressed == true) { //shrinks the player if they are moving up y axis
             if (this.y > yWall && this.h >= 30) {

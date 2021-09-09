@@ -27,8 +27,8 @@ class playerProjectile {
         return this.hitItem(archer);
     }
     enemyCollision() {
-        var self = this;
-        var collided = false;
+        let self = this;
+        let collided = false;
         enemies.forEach(function (enemy, i) {
             if (self.hitEnemy(enemy)) {
                 delete enemies[i];
@@ -40,8 +40,8 @@ class playerProjectile {
         return collided;
     }
     archerCollision() {
-        var self = this;
-        var collided = false;
+        let self = this;
+        let collided = false;
         archers.forEach(function (archer, i) {
             if (self.hitArcher(archer)) {
                 delete archers[i];
@@ -79,14 +79,15 @@ class archerProjectile {
         return this.hitItem(player);
     }
     playerCollision() {
-        var self = this;
-        var collided = false;
-        if (self.hitEnemy(player)) {
+        let self = this;
+        let collided = false;
+        if (self.hitPlayer(player)) {
             collided = true;
             if (collided == true && health > 0) {
                 health -= 33;
+                console.log(health);
             }
-            if (health == 0) {
+            if (health <= 0) {
                 gameState = 'gameOver';
             }
         }
