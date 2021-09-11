@@ -45,6 +45,8 @@
     setInterval(mainloop, 1000 / 50);
   }
 
+
+
   var mouseX = 0;
   var mouseY = 0;
   var mouseDown = false;
@@ -57,7 +59,8 @@
   var xWall = 0;
   var maxArrows = 4;
   var arrowCount = 0;
-  var maxArcherArrows = 4;
+  var maxArcherArrows = 0; //updated in for loop
+  var maxPerArcher = 3;
   var archerArrowCount = 0;
 
   var singlePlayer = false;
@@ -114,6 +117,7 @@
         }
         for (var i = 0; i < 3; i++) {
           createArcher();
+          maxArcherArrows = maxPerArcher * JSON.parse(JSON.stringify(archers.length));
         }
         gameStart = false;
       }
@@ -156,8 +160,9 @@
           if (playerArrow.outOfbounds()) {
             delete array[i]; //if the bullet goes out of canvas it will be deleted
             playerArrows = playerArrows.filter(item => item !==
-            undefined); //checks if arrows are undefined (from when they get deleted) and will actually remove them 
-            if (arrowCount >= 0) { //so arrowCount can't go into negatives
+              undefined
+            ); //checks if arrows are undefined (from when they get deleted) and will actually remove them 
+            if (arrowCount > 0) { //so arrowCount can't go into negatives
               arrowCount -= 1;
             }
           }
@@ -165,8 +170,9 @@
             delete array[i]; //same thing for when bullet hits enemy
             createEnemy(); //creates a new enemy 
             playerArrows = playerArrows.filter(item => item !==
-            undefined); //checks if arrows are undefined (from when they get deleted) and will actually remove them
-            if (arrowCount >= 0) { //so arrowCount can't go into negatives
+              undefined
+            ); //checks if arrows are undefined (from when they get deleted) and will actually remove them
+            if (arrowCount > 0) { //so arrowCount can't go into negatives
               arrowCount -= 1;
             }
           }
@@ -174,8 +180,9 @@
             delete array[i]; //same thing for when bullet hits enemy
             createArcher(); //creates a new enemy 
             playerArrows = playerArrows.filter(item => item !==
-            undefined); //checks if arrows are undefined (from when they get deleted) and will actually remove them
-            if (arrowCount >= 0) { //so arrowCount can't go into negatives
+              undefined
+            ); //checks if arrows are undefined (from when they get deleted) and will actually remove them
+            if (arrowCount > 0) { //so arrowCount can't go into negatives
               arrowCount -= 1;
             }
           }
@@ -187,21 +194,13 @@
           archerArrow.drawRect();
           archerArrow.movement();
 
-          // if (archerArrow.outOfbounds()) {
-          //   delete array[i]; //if the bullet goes out of canvas it will be deleted
-          //   console.log(array[i]);
-          //   archerArrows = archerArrows.filter(item => item !==
-          //   undefined); //checks if arrows are undefined (from when they get deleted) and will actually remove them 
-          //   if (arrowCount >= 0) { //so arrowCount can't go into negatives
-          //     arrowCount -= 1;
-          //   }
-          // }
-
-          if(archerArrow.playerCollision()){
-            delete array[i];
-            archerArrows = archerArrows.filter(item => item !== undefined);
-            if (arrowCount >= 0) { //so arrowCount can't go into negatives
-              arrowCount -= 1;
+          if (archerArrow.outOfbounds() || archerArrow.playerCollision()) {
+            delete array[i]; //if the bullet goes out of canvas it will be deleted
+            archerArrows = archerArrows.filter(item => item !==
+              undefined
+            ); //checks if arrows are undefined (from when they get deleted) and will actually remove them 
+            if (archerArrowCount > 0) { //so arrowCount can't go into negatives
+              archerArrowCount -= 1;
             }
           }
         });
@@ -359,7 +358,6 @@
     if (evt.keyCode == Q_KEY) {
       qKeyPressed = true;
       if (arrowCount < maxArrows) { //limits spamming arrows
-        console.log('working')
         createProjectile(1, player.x, player.y, player.w, "player");
       }
     }

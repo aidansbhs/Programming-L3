@@ -70,7 +70,7 @@ class archerProjectile {
         this.x += this.xSpeed;
     }
     outOfbounds() {
-        return this.x > canvas.width;
+        return this.x < 0;
     }
     hitItem(item) {
         return (this.x + this.w > item.x && this.x < item.x + item.w) && (this.y + this.h > item.y && this.y < item.y + item.h);

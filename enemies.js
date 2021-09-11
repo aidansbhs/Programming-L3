@@ -63,16 +63,20 @@ class Archer {
             this.y = Math.floor(Math.random() * (yWall - 0) + yWall);
             aSetUp = false;
         }
-
-        if (this.x > 1200) {
-            this.x -= this.xSpeed;
+        // enemies.forEach(function (enemy, i) { //for each enemy
+                // if (this.x < enemy.x) {
+                    if(this.x > 1200){
+                    this.x -= this.xSpeed;
+                    // console.log('working');
+                }
+            // });
         }
-    }
-    shooting() {
-        if (gameState == 'playing') {
-            if (archerArrowCount < maxArcherArrows) { //limits spamming arrows
-                createArrow(-1, this.x, this.y, this.w, "archer");
+        shooting() {
+            if (gameState == 'playing') {
+                if (archerArrowCount < maxArcherArrows) { //limits spamming arrows
+                    createArrow(-1, this.x, this.y, this.w, "archer");
+                    console.log(archerArrowCount);
+                }
             }
         }
     }
-}

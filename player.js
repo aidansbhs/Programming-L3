@@ -114,7 +114,7 @@ class Player {
         var collided = false;
         if (xKeyPressed == true) {
             enemies.forEach(function (enemy, i) {
-                if (self.hitEnemy(enemy)) {
+                if (self.hitEnemy(enemy)) { //**add range for attack
                     delete enemies[i];
                     collided = true;
                 }
