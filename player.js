@@ -1,5 +1,5 @@
 class Player {
-    constructor(x, y, w, h, c, xSpeed, ySpeed) {
+    constructor(x, y, w, h, c, xSpeed, ySpeed, maxArrows = 4) {
         this.x = x;
         this.y = y;
         this.w = w;
@@ -7,6 +7,8 @@ class Player {
         this.c = c;
         this.xSpeed = xSpeed;
         this.ySpeed = ySpeed;
+        this.maxArrows = maxArrows;
+        this.arrows = [];
     }
 
     drawRect() {
@@ -15,12 +17,6 @@ class Player {
     }
 
     movement() {
-        if (pSetUp) { //start pos
-            this.x = canvas.width / 2 - this.w;
-            this.y = canvas.height - this.h;
-            pSetUp = false;
-        }
-
         if (aKeyPressed == true) {
             if (this.y + 1.74 * this.x <= 605) { //y=mx+c for diagonal wall
                 let rise = 1.74 / 2.74;
@@ -85,24 +81,24 @@ class Player {
         return (this.x + this.w > item.x && this.x < item.x + item.w) && (this.y + this.h > item.y && this.y < item.y + item.h)
     }
 
-    hitEnemy(enemy) {
-        return this.hitItem(enemy);
+    hitKnight(knight) {
+        return this.hitItem(knight);
     }
 
     collision() {
         var self = this;
         var collided = false;
-        enemies.forEach(function (enemy, i) { //for each enemy
-            if (self.hitEnemy(enemy)) { //if touching
+        knights.forEach(function (knight, i) { //for each knight
+            if (self.hitKnight(knight)) { //if touching
                 collided = true;
                 if (collided == true && health > 0) {
                     health -= 1; //decrease the health if touching
-                    // enemy.xSpeed = 0; //stops enemy going in player
-                    // enemy.ySpeed = 0; //stops enemy going in player
+                    // knight.xSpeed = 0; //stops knight going in player
+                    // knight.ySpeed = 0; //stops knight going in player
                     // console.log(health);
                 }
                 if (health == 0) {
-                    gameState = 'gameOver';
+                    // gameState = 'gameOver';
                 }
             }
         });
@@ -113,14 +109,20 @@ class Player {
         var self = this;
         var collided = false;
         if (xKeyPressed == true) {
-            enemies.forEach(function (enemy, i) {
-                if (self.hitEnemy(enemy)) { //**add range for attack
-                    delete enemies[i];
+            knights.forEach(function (knight, i) {
+                if (self.hitknight(knight)) { //**add range for attack
+                    delete knights[i];
                     collided = true;
                 }
             });
-            enemies = enemies.filter(item => item !== undefined);
+            knights = knights.filter(item => item !== undefined);
             return collided;
+        }
+    }
+
+    shooting() {
+            if (this.arrows.length < this.maxArrows) { //limits spamming arrows
+                this.arrows.push(new playerProjectile(this.x + this.w / 2, this.y + this.h / 2, 10, 10, 'white', 7.5));
         }
     }
 

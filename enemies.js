@@ -1,4 +1,4 @@
-class Enemy {
+class Knight {
     constructor(x, y, w, h, c, xSpeed, ySpeed) {
         this.x = x;
         this.y = y;
@@ -15,10 +15,10 @@ class Enemy {
     }
 
     movement() {
-        if (eSetUp == true) {
+        if (kSetUp == true) {
             this.x = canvas.width - this.w;
             this.y = Math.floor(Math.random() * (yWall - 0) + yWall);
-            eSetUp = false;
+            kSetUp = false;
         }
 
         if (this.x <= player.x) {
@@ -42,7 +42,7 @@ class Enemy {
 }
 
 class Archer {
-    constructor(x, y, w, h, c, xSpeed, ySpeed) {
+    constructor(x, y, w, h, c, xSpeed, ySpeed, maxArrows = 3) {
         this.x = x;
         this.y = y;
         this.w = w;
@@ -50,6 +50,8 @@ class Archer {
         this.c = c;
         this.xSpeed = xSpeed;
         this.ySpeed = ySpeed;
+        this.maxArrows = maxArrows;
+        this.arrows = [];
     }
 
     drawRect() {
@@ -63,20 +65,56 @@ class Archer {
             this.y = Math.floor(Math.random() * (yWall - 0) + yWall);
             aSetUp = false;
         }
-        // enemies.forEach(function (enemy, i) { //for each enemy
-                // if (this.x < enemy.x) {
-                    if(this.x > 1200){
-                    this.x -= this.xSpeed;
-                    // console.log('working');
-                }
-            // });
+
+        if (past == false) {
+            if (this.x > 1200) {
+                this.x -= this.xSpeed;
+            }
         }
-        shooting() {
-            if (gameState == 'playing') {
-                if (archerArrowCount < maxArcherArrows) { //limits spamming arrows
-                    createArrow(-1, this.x, this.y, this.w, "archer");
-                    console.log(archerArrowCount);
+
+        this.ySpeed = Math.floor(Math.random() * (yWall - 0) + yWall)
+        if (this.y = player.y) {
+            this.ySpeed = 0;
+            //start going agian
+        }
+
+
+        if (this.y < yWall) {
+            this.y = yWall;
+        }
+    }
+    shooting() {
+        if (gameState == 'playing') {
+            if (this.x < canvas.width - this.w) {
+                if (this.arrows.length < this.maxArrows) { //limits spamming arrows
+                    this.arrows.push(new archerProjectile(this.x + this.w / 2, this.y + this.h / 2, 10, 10, "red", -7.5));
                 }
             }
         }
     }
+}
+
+class Tank {
+    constructor(x, y, w, h, c, xSpeed, ySpeed) {
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.c = c;
+        this.xSpeed = xSpeed;
+        this.ySpeed = ySpeed;
+
+    }
+    drawRect() {
+        canvasContext.fillStyle = this.c;
+        canvasContext.fillRect(this.x, this.y, this.w, this.h);
+    }
+
+    movement() {
+        this.x -= this.xSpeed
+
+        if(this.x <= player.x){
+            this.xSpeed = 0;
+        }
+    }
+}

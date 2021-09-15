@@ -20,22 +20,22 @@ class playerProjectile {
     hitItem(item) {
         return (this.x + this.w > item.x && this.x < item.x + item.w) && (this.y + this.h > item.y && this.y < item.y + item.h);
     }
-    hitEnemy(enemy) {
-        return this.hitItem(enemy);
+    hitKnight(knight) {
+        return this.hitItem(knight);
     }
     hitArcher(archer) {
         return this.hitItem(archer);
     }
-    enemyCollision() {
+    knightCollision() {
         let self = this;
         let collided = false;
-        enemies.forEach(function (enemy, i) {
-            if (self.hitEnemy(enemy)) {
-                delete enemies[i];
+        knights.forEach(function (knight, i) {
+            if (self.hitKnight(knight)) {
+                delete knights[i];
                 collided = true;
             }
         });
-        enemies = enemies.filter(item => item !== undefined);
+        knights = knights.filter(item => item !== undefined);
 
         return collided;
     }
@@ -85,10 +85,10 @@ class archerProjectile {
             collided = true;
             if (collided == true && health > 0) {
                 health -= 33;
-                console.log(health);
+                // console.log(health);
             }
             if (health <= 0) {
-                gameState = 'gameOver';
+                // gameState = 'gameOver';
             }
         }
         return collided;
