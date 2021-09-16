@@ -26,6 +26,9 @@ class playerProjectile {
     hitArcher(archer) {
         return this.hitItem(archer);
     }
+    hitTank(tank) {
+        return this.hitItem(tank);
+    }
     knightCollision() {
         let self = this;
         let collided = false;
@@ -49,6 +52,19 @@ class playerProjectile {
             }
         });
         archers = archers.filter(item => item !== undefined);
+        return collided;
+    }
+
+    tankCollision() {
+        let self = this;
+        let collided = false;
+        tanks.forEach(function (tank, i) {
+            if (self.hitTank(tank)) {
+                delete tanks[i];
+                collided = true;
+            }
+        });
+        tanks = tanks.filter(item => item !== undefined);
         return collided;
     }
 }

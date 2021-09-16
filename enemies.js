@@ -66,11 +66,11 @@ class Archer {
             aSetUp = false;
         }
 
-        if (past == false) {
+        // if (cc == true) {
             if (this.x > 1200) {
                 this.x -= this.xSpeed;
             }
-        }
+        // }
 
         this.ySpeed = Math.floor(Math.random() * (yWall - 0) + yWall)
         if (this.y = player.y) {
@@ -95,6 +95,32 @@ class Archer {
 }
 
 class Tank {
+    constructor(x, y, w, h, c, xSpeed, ySpeed) {
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.c = c;
+        this.xSpeed = xSpeed;
+        this.ySpeed = ySpeed;
+
+    }
+    drawRect() {
+        canvasContext.fillStyle = this.c;
+        canvasContext.fillRect(this.x, this.y, this.w, this.h);
+    }
+
+    movement() {
+        this.x -= this.xSpeed
+
+        if(this.x <= player.x){
+            this.xSpeed = 0;
+        }
+    }
+}
+
+
+class Mage {
     constructor(x, y, w, h, c, xSpeed, ySpeed) {
         this.x = x;
         this.y = y;

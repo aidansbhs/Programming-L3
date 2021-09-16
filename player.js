@@ -88,13 +88,11 @@ class Player {
     collision() {
         var self = this;
         var collided = false;
-        knights.forEach(function (knight, i) { //for each knight
+        knights.forEach(function (knight) { //for each knight
             if (self.hitKnight(knight)) { //if touching
                 collided = true;
                 if (collided == true && health > 0) {
                     health -= 1; //decrease the health if touching
-                    // knight.xSpeed = 0; //stops knight going in player
-                    // knight.ySpeed = 0; //stops knight going in player
                     // console.log(health);
                 }
                 if (health == 0) {
@@ -106,23 +104,23 @@ class Player {
     }
 
     attacking() {
-        var self = this;
-        var collided = false;
-        if (xKeyPressed == true) {
-            knights.forEach(function (knight, i) {
-                if (self.hitknight(knight)) { //**add range for attack
+        var inRange = false;
+        knights.forEach(function (knight, i) {
+            if (xKeyPressed == true) {
+                if (this.hitKnight(knight)) { //**add range for attack
                     delete knights[i];
-                    collided = true;
+                    console.log('working');
+                    inRange = true;
                 }
-            });
-            knights = knights.filter(item => item !== undefined);
-            return collided;
-        }
+            }
+        });
+        knights = knights.filter(item => item !== undefined);
+        return inRange;
     }
 
     shooting() {
-            if (this.arrows.length < this.maxArrows) { //limits spamming arrows
-                this.arrows.push(new playerProjectile(this.x + this.w / 2, this.y + this.h / 2, 10, 10, 'white', 7.5));
+        if (this.arrows.length < this.maxArrows) { //limits spamming arrows
+            this.arrows.push(new playerProjectile(this.x + this.w / 2, this.y + this.h / 2, 10, 10, 'white', 7.5));
         }
     }
 
