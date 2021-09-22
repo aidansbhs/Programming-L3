@@ -110,3 +110,45 @@ class archerProjectile {
         return collided;
     }
 }
+
+class mageProjectile {
+    constructor(x, y, w, h, c, xSpeed) {
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.c = c;
+        this.xSpeed = xSpeed;
+    }
+    drawRect() {
+        canvasContext.fillStyle = this.c;
+        canvasContext.fillRect(this.x, this.y, this.w, this.h);
+    }
+    movement() {
+        this.x += this.xSpeed;
+    }
+    outOfbounds() {
+        return this.x < 0;
+    }
+    hitItem(item) {
+        return (this.x + this.w > item.x && this.x < item.x + item.w) && (this.y + this.h > item.y && this.y < item.y + item.h);
+    }
+    hitPlayer(player) {
+        return this.hitItem(player);
+    }
+    playerCollision() {
+        let self = this;
+        let collided = false;
+        if (self.hitPlayer(player)) {
+            collided = true;
+            if (collided == true && health > 0) {
+                health -= 33;
+                // console.log(health);
+            }
+            if (health <= 0) {
+                // gameState = 'gameOver';
+            }
+        }
+        return collided;
+    }
+}

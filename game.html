@@ -56,19 +56,17 @@
   var gameStart = true;
   var yWall = 0;
   var xWall = 0;
-  var maxArrows = 4;
   var arrowCount = 0;
   var maxArcherArrows = 0; //updated in main loop
   var maxPerArcher = 3;
-  var archerArrowCount = 0;
-  var maxArchers = 4;
-  var maxKnights = 4;
-  var maxTanks = 4;
-  var maxMages = 4;
+  var maxArchers = 3;
+  var maxKnights = 3;
+  var maxTanks = 3;
+  var maxMages = 3;
   var levelArcherCount = 0;
   var levelKnightCount = 0;
   var levelTankCount = 0;
-  var levelMagesCount = 0;
+  var levelMageCount = 0;
 
   var singlePlayer = false;
   var multiPlayer = false;
@@ -114,10 +112,12 @@
   var mages = [];
   var playerArrows = [];
   var archerArrows = [];
+  var mageProjectiles = [];
 
   function mainloop() {
     // console.log(gameState);
     if (gameState == 'playing') {
+      levels = [0];
       if (gameStart == true) {
         gameSetup();
         for (var i = 0; i < 3; i++) { //for loop for knights so it pushes three at start
@@ -131,8 +131,12 @@
         }
         gameStart = false;
       }
+      // createKnight();
+      // createTank();
+      // createMage();
       createArcher();
       maxArcherArrows = maxPerArcher * JSON.parse(JSON.stringify(archers.length));
+
 
       drawImage(imageAssets.background1, 0, 0, canvas.width, canvas.height); //bg    
 
@@ -200,9 +204,6 @@
               delete array[i]; //if the bullet goes out of canvas it will be deleted
               archer.arrows = archerArrows.filter(item => item !== undefined);
               //checks if arrows are undefined (from when they get deleted) and will actually remove them 
-              if (archerArrowCount > 0) { //so arrowCount can't go into negatives
-                archerArrowCount -= 1;
-              }
             }
           });
         });
@@ -219,6 +220,17 @@
         mages.forEach(function (mage, i, array) {
           mage.drawRect();
           mage.movement();
+          mage.shooting();
+
+          mage.projectiles.forEach(function (mageProjectile, i, array) {
+            mageProjectile.drawRect();
+            mageProjectile.movement();
+
+            if (mageProjectile.outOfbounds() || mageProjectile.playerCollision()) {
+              delete array[i];
+              mage.projectiles = mageProjectiles.filter(item => item !== undefined);
+            }
+          });
         });
       }
 
@@ -243,6 +255,8 @@
 
     yWall = canvas.height / 2.64465;
     xWall = canvas.width / 9;
+
+    createLevels();
   } //end of gameSetup
 
   function loadImages() { //images are stored here
@@ -303,6 +317,12 @@
 
     var knight = new Knight(kXpos, kYpos, kSize, kSize, 'yellow', kXspeed, kYspeed);
 
+    // if (gameState = 'playing') {
+    //   for (let i = levelKnightCount; i < maxKnights; i++) {
+    //     knights.push(knight);
+    //     levelKnightCount++
+    //   }
+    // }
     knights.push(knight);
   } //end of createKnight
 
@@ -311,7 +331,7 @@
     aYpos = Math.floor(Math.random() * (yWall - 0) + yWall);
     aXpos = Math.floor(Math.random() * (1600 - 1400) +
       1600); //makes it random spawing outside maps so won't spawn inside of each other;
-    aXspeed = 6;
+    aXspeed = 5;
     aYspeed = Math.floor(Math.random() * (12 - 3) + 3);
 
     var archer = new Archer(aXpos, aYpos, aSize, aSize, 'orange', aXspeed, aYspeed);
@@ -319,6 +339,7 @@
     if (enemyPastCheck(knights) && levelArcherCount < maxArchers) {
       for (let i = levelArcherCount; i < maxArchers; i++) {
         archers.push(archer);
+        console.log(archers)
         levelArcherCount++;
       }
     }
@@ -343,12 +364,14 @@
 
     var tank = new Tank(tXpos, tYpos, tSize, tSize, 'red', tXspeed, tYspeed);
 
-    if (gameState == 'playing') {
-      for (let i = levelTankCount; i < maxTanks; i++) {
-        tanks.push(tank);
-        levelTankCount++
-      }
-    }
+    //   if (gameState == 'playing') {
+    //     for (let i = levelTankCount; i < maxTanks; i++) {
+    //     // if (levelTankCount < maxTanks) {
+    //       tanks.push(tank);
+    //       levelTankCount++
+    //   }
+    // }
+    tanks.push(tank);
   } //end of createTank
 
   function createMage() {
@@ -360,8 +383,22 @@
 
     var mage = new Mage(mXpos, mYpos, mSize, mSize, 'purple', mXspeed, mYspeed);
 
+    // if (gameState == 'playing') {
+    //   for (let i = levelMageCount; i < maxMages; i++) {
+    //     mages.push(mage);
+    //     levelMageCount++
+    //   }
+    // }
     mages.push(mage);
   } //end of createKnight
+
+  function createLevels() {
+   var levels = [
+      [ //level 1
+        levelKnightCount = 6
+      ]
+    ]
+  }
 
   function mouseAction(evt) {
     var rect = canvas.getBoundingClientRect();

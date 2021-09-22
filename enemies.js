@@ -66,16 +66,8 @@ class Archer {
             aSetUp = false;
         }
 
-        // if (cc == true) {
-            if (this.x > 1200) {
-                this.x -= this.xSpeed;
-            }
-        // }
-
-        this.ySpeed = Math.floor(Math.random() * (yWall - 0) + yWall)
-        if (this.y = player.y) {
-            this.ySpeed = 0;
-            //start going agian
+        if (this.x > 1200) {
+            this.x -= this.xSpeed;
         }
 
 
@@ -87,7 +79,7 @@ class Archer {
         if (gameState == 'playing') {
             if (this.x < canvas.width - this.w) {
                 if (this.arrows.length < this.maxArrows) { //limits spamming arrows
-                    this.arrows.push(new archerProjectile(this.x + this.w / 2, this.y + this.h / 2, 10, 10, "red", -7.5));
+                    this.arrows.push(new archerProjectile(this.x + this.w / 2, this.y + this.h / 2, 10, 10, "red", -5.5));
                 }
             }
         }
@@ -113,7 +105,7 @@ class Tank {
     movement() {
         this.x -= this.xSpeed
 
-        if(this.x <= player.x){
+        if (this.x <= player.x) {
             this.xSpeed = 0;
         }
     }
@@ -121,7 +113,7 @@ class Tank {
 
 
 class Mage {
-    constructor(x, y, w, h, c, xSpeed, ySpeed) {
+    constructor(x, y, w, h, c, xSpeed, ySpeed, maxProjectiles = 1) {
         this.x = x;
         this.y = y;
         this.w = w;
@@ -129,6 +121,8 @@ class Mage {
         this.c = c;
         this.xSpeed = xSpeed;
         this.ySpeed = ySpeed;
+        this.maxProjectiles = maxProjectiles;
+        this.projectiles = [];
 
     }
     drawRect() {
@@ -139,8 +133,17 @@ class Mage {
     movement() {
         this.x -= this.xSpeed
 
-        if(this.x <= player.x){
+        if (this.x <= player.x) {
             this.xSpeed = 0;
+        }
+    }
+    shooting() {
+        if (gameState = 'playing') {
+            if (this.x < canvas.width - this.w) {
+                if (this.projectiles.length < this.maxProjectiles) { //limits spamming
+                    this.projectiles.push(new mageProjectile(this.x + this.w / 2, this.y + this.h / 2, 10, 10, "pink", -7.5));
+                }
+            }
         }
     }
 }

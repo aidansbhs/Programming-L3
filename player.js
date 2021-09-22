@@ -9,15 +9,19 @@ class Player {
         this.ySpeed = ySpeed;
         this.maxArrows = maxArrows;
         this.arrows = [];
+        this.direction = 0;
     }
 
     drawRect() {
         canvasContext.fillStyle = this.c;
         canvasContext.fillRect(this.x, this.y, this.w, this.h);
+        canvasContext.fillStyle = 'grey';
+        canvasContext.fillRect(this.x + this.w / 2, this.y, this.w * this.direction / 2, this.h);
     }
 
     movement() {
         if (aKeyPressed == true) {
+            this.direction = -1;
             if (this.y + 1.74 * this.x <= 605) { //y=mx+c for diagonal wall
                 let rise = 1.74 / 2.74;
                 let run = 1 / 2.74;
@@ -32,6 +36,7 @@ class Player {
         }
 
         if (dKeyPressed == true) {
+            this.direction = 1;
             this.x += this.xSpeed;
             if (this.x + this.w > canvas.width) {
                 this.x = canvas.width - this.h;
@@ -78,7 +83,7 @@ class Player {
     }
 
     hitItem(item) {
-        return (this.x + this.w > item.x && this.x < item.x + item.w) && (this.y + this.h > item.y && this.y < item.y + item.h)
+        return (this.x + this.w > item.x && this.x < item.x + item.w) && (this.y + this.h > item.y && this.y < item.y + item.h);
     }
 
     hitKnight(knight) {
@@ -103,19 +108,34 @@ class Player {
         return collided;
     }
 
-    attacking() {
-        var inRange = false;
-        knights.forEach(function (knight, i) {
-            if (xKeyPressed == true) {
-                if (this.hitKnight(knight)) { //**add range for attack
-                    delete knights[i];
-                    console.log('working');
-                    inRange = true;
-                }
+    attackRange(array,name) {
+        let counter = [];
+        let self = this;
+        array.forEach(function(item, i){
+            if ((((self.x + self.w * 2) + (self.w / 2 * self.direction)) > (item.x)) && (((self.x - self.w) + (self.w * self.direction)) < (item.x + item.w)) && ((self.y) < (item.y + item.h)) && ((self.y + self.h) > (item.y))) {
+                counter.push(i);
             }
         });
-        knights = knights.filter(item => item !== undefined);
-        return inRange;
+        return [name,counter];
+    }
+
+    attacking() {
+        if(xKeyPressed == true){
+            var enemy0 = this.attackRange(knights, "knights"); //returns knights inside of the attackRange hitbox ["knights,[(hit people)]"]
+            var enemy1 = this.attackRange(archers, "archers");
+            var enemy2 = this.attackRange(tanks, "tanks");
+            var enemy3 = this.attackRange(mages, "mages");
+            for (let i = 0; i < 4; i++){
+                let run = false;
+                for (let ii = 0; ii < eval("enemy" + i)[1].length; ii++){ //runs through all the hit enemys inside attackRange
+                    eval(eval("enemy" + i)[0])[eval("enemy" + i)[1][ii]] = "undefined"; //turns hit enemy to undifined - eval converts enemy variable name "knights" into the actually variable called knights 
+                    run = true;
+                }
+                if(run){
+                    window[eval("enemy" + i)[0]] = eval(eval("enemy" + i)[0]).filter(item => item !== "undefined"); //filters undifinded enemy from array and window will find the private variable no matter what
+                }
+            }
+        }
     }
 
     shooting() {
