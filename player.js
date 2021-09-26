@@ -1,5 +1,5 @@
 class Player {
-    constructor(x, y, w, h, c, xSpeed, ySpeed) {
+    constructor(x, y, w, h, c, xSpeed, ySpeed, maxArrows = 4) {
         this.x = x;
         this.y = y;
         this.w = w;
@@ -7,21 +7,21 @@ class Player {
         this.c = c;
         this.xSpeed = xSpeed;
         this.ySpeed = ySpeed;
+        this.maxArrows = maxArrows;
+        this.arrows = [];
+        this.direction = 0;
     }
 
     drawRect() {
         canvasContext.fillStyle = this.c;
         canvasContext.fillRect(this.x, this.y, this.w, this.h);
+        canvasContext.fillStyle = 'grey';
+        canvasContext.fillRect(this.x + this.w / 2, this.y, this.w * this.direction / 2, this.h);
     }
 
     movement() {
-        if (pSetUp) { //start pos
-            this.x = canvas.width / 2 - this.w;
-            this.y = canvas.height - this.h;
-            pSetUp = false;
-        }
-
         if (aKeyPressed == true) {
+            this.direction = -1;
             if (this.y + 1.74 * this.x <= 605) { //y=mx+c for diagonal wall
                 let rise = 1.74 / 2.74;
                 let run = 1 / 2.74;
@@ -36,6 +36,7 @@ class Player {
         }
 
         if (dKeyPressed == true) {
+            this.direction = 1;
             this.x += this.xSpeed;
             if (this.x + this.w > canvas.width) {
                 this.x = canvas.width - this.h;
@@ -64,28 +65,6 @@ class Player {
         }
     }
 
-    // jump() {
-    //     if (spacePressed == true && jumping == false) { //jumping
-    //         jumping = true;
-    //         gravity = jumpForce; //gravity becomes jump force
-    //         this.y += gravity / 9;
-    //     }
-
-    //     if (this.y + this.h >= canvas.height) { //cannot jump more if player xpos is greater than the ground line
-    //         this.ySpeed = 0;
-    //         this.y = canvas.height - this.h; //to stop player sinking through the ground
-    //         jumping = false;
-    //         gravity = 0;
-    //     }
-    // }
-
-    // gravity() {
-    //     if (gravity > -60 && this.y < canvas.height - this.h) {
-    //         this.y += gravity / 1.8;
-    //         gravity += 2;
-    //     }
-    // }
-
     depth() {
         if (this.y + this.h < canvas.height && wKeyPressed == true) { //shrinks the player if they are moving up y axis
             if (this.y > yWall && this.h >= 30) {
@@ -104,45 +83,64 @@ class Player {
     }
 
     hitItem(item) {
-        return (this.x + this.w > item.x && this.x < item.x + item.w) && (this.y + this.h > item.y && this.y < item.y + item.h)
+        return (this.x + this.w > item.x && this.x < item.x + item.w) && (this.y + this.h > item.y && this.y < item.y + item.h);
     }
 
-    hitEnemy(enemy) {
-        return this.hitItem(enemy);
+    hitKnight(knight) {
+        return this.hitItem(knight);
     }
 
     collision() {
         var self = this;
         var collided = false;
-        enemies.forEach(function (enemy, i) { //for each enemy
-            if (self.hitEnemy(enemy)) { //if touching
+        knights.forEach(function (knight) { //for each knight
+            if (self.hitKnight(knight)) { //if touching
                 collided = true;
                 if (collided == true && health > 0) {
                     health -= 1; //decrease the health if touching
-                    // enemy.xSpeed = 0; //stops enemy going in player
-                    // enemy.ySpeed = 0; //stops enemy going in player
                     // console.log(health);
                 }
                 if (health == 0) {
-                    gameState = 'gameOver';
+                    // gameState = 'gameOver';
                 }
             }
         });
         return collided;
     }
 
+    attackRange(array,name) {
+        let counter = [];
+        let self = this;
+        array.forEach(function(item, i){
+            if ((((self.x + self.w * 2) + (self.w / 2 * self.direction)) > (item.x)) && (((self.x - self.w) + (self.w * self.direction)) < (item.x + item.w)) && ((self.y) < (item.y + item.h)) && ((self.y + self.h) > (item.y))) {
+                counter.push(i);
+            }
+        });
+        return [name,counter];
+    }
+
     attacking() {
-        var self = this;
-        var collided = false;
-        if (xKeyPressed == true) {
-            enemies.forEach(function (enemy, i) {
-                if (self.hitEnemy(enemy)) {
-                    delete enemies[i];
-                    collided = true;
+        if(xKeyPressed == true){
+            var enemy0 = this.attackRange(knights, "knights"); //returns knights inside of the attackRange hitbox ["knights,[(hit people)]"]
+            var enemy1 = this.attackRange(archers, "archers");
+            var enemy2 = this.attackRange(tanks, "tanks");
+            var enemy3 = this.attackRange(mages, "mages");
+            for (let i = 0; i < 4; i++){
+                let run = false;
+                for (let ii = 0; ii < eval("enemy" + i)[1].length; ii++){ //runs through all the hit enemys inside attackRange
+                    eval(eval("enemy" + i)[0])[eval("enemy" + i)[1][ii]] = "undefined"; //turns hit enemy to undifined - eval converts enemy variable name "knights" into the actually variable called knights 
+                    run = true;
                 }
-            });
-            enemies = enemies.filter(item => item !== undefined);
-            return collided;
+                if(run){
+                    window[eval("enemy" + i)[0]] = eval(eval("enemy" + i)[0]).filter(item => item !== "undefined"); //filters undifinded enemy from array and window will find the private variable no matter what
+                }
+            }
+        }
+    }
+
+    shooting() {
+        if (this.arrows.length < this.maxArrows) { //limits spamming arrows
+            this.arrows.push(new playerProjectile(this.x + this.w / 2, this.y + this.h / 2, 10, 10, 'white', 7.5, JSON.parse(JSON.stringify(this.direction))));
         }
     }
 
