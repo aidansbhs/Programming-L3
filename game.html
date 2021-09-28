@@ -53,13 +53,16 @@
   var gameStart = true;
   var yWall = 0;
   var xWall = 0;
+
   var arrowCount = 0;
   var maxArcherArrows = 0; //updated in main loop
   var maxPerArcher = 3;
+
   var maxArchers = 3;
   var maxKnights = 3;
   var maxTanks = 3;
   var maxMages = 3;
+
   var levelArcherCount = 0;
   var levelKnightCount = 0;
   var levelTankCount = 0;
@@ -107,6 +110,8 @@
   var archers = [];
   var tanks = [];
   var mages = [];
+
+  //projectiles
   var playerArrows = [];
   var archerArrows = [];
   var mageProjectiles = [];
@@ -114,29 +119,6 @@
   function mainloop() {
     // console.log(gameState);
     if (gameState == 'playing') {
-      levels = [0];
-      if (gameStart == true) {
-        gameSetup();
-        // for (var i = 0; i < 3; i++) { //for loop for knights so it pushes three at start
-        //   createKnight();
-        // }
-        // // for(var i = 0; i < 3; i++){
-        // //   createArcher();
-        // // }
-        // for (var i = 0; i < 3; i++) {
-        //   createTank();
-        // }
-        // for (var i = 0; i < 3; i++) {
-        //   createMage();
-        // }
-        gameStart = false;
-      }
-
-      createKnight();
-      createTank();
-      createMage();
-      createArcher();
-      maxArcherArrows = maxPerArcher * JSON.parse(JSON.stringify(archers.length));
 
       drawImage(imageAssets.background1, 0, 0, canvas.width, canvas.height); //bg    
 
@@ -147,11 +129,6 @@
       if (multiPlayer == true) {
         gameSetup();
       }
-      player.drawRect();
-      player.movement();
-      player.depth();
-      player.collision();
-      player.attacking();
 
       player.arrows.forEach(function (playerArrow, i, array) {
         playerArrow.drawRect();
@@ -226,17 +203,15 @@
         mages.forEach(function (mage, i, array) {
           mage.drawRect();
           mage.movement();
-          mage.shooting();
-
           mage.projectiles.forEach(function (mageProjectile, i, array) {
             mageProjectile.drawRect();
-            mageProjectile.movement();
 
-            if (mageProjectile.outOfbounds() || mageProjectile.playerCollision()) {
+            if (mageProjectile.playerCollision()) {
               delete array[i];
               mage.projectiles = mageProjectiles.filter(item => item !== undefined);
             }
           });
+          mage.shooting(); //only shoots after projectiles have been drawed
         });
       }
 
@@ -261,8 +236,20 @@
 
     yWall = canvas.height / 2.64465;
     xWall = canvas.width / 9;
-
-    createLevels();
+ 
+    //enemies
+    // createKnight();
+    // createTank();
+    createMage();
+    // createArcher();
+    maxArcherArrows = maxPerArcher * JSON.parse(JSON.stringify(archers.length));
+  
+    //player
+    player.drawRect();
+    player.movement();
+    player.depth();
+    player.collision();
+    player.attacking();
   } //end of gameSetup
 
   function loadImages() { //images are stored here
@@ -323,7 +310,6 @@
 
     if (gameState = 'playing') {
       for (let i = levelKnightCount; i < maxKnights; i++) {
-        console.log('working')
         knights.push(new Knight(kXpos, kYpos, kSize, kSize, 'yellow', kXspeed, kYspeed));
         levelKnightCount++
       }
@@ -341,7 +327,7 @@
     if (enemyPastCheck(knights) && levelArcherCount < maxArchers) {
       for (let i = levelArcherCount; i < maxArchers; i++) {
         archers.push(new Archer(aXpos, aYpos, aSize, aSize, 'orange', aXspeed,
-        aYspeed)); //needs to be inside for loop to create new Archer otherwise it just duplicates the same archer  
+          aYspeed)); //needs to be inside for loop to create new Archer otherwise it just duplicates the same archer  
         levelArcherCount++;
       }
     }
@@ -364,10 +350,10 @@
     tXspeed = 2;
     tYspeed = Math.floor(Math.random() * (12 - 3) + 3);
 
-      if (gameState == 'playing') {
-        for (let i = levelTankCount; i < maxTanks; i++) {
-          tanks.push(new Tank(tXpos, tYpos, tSize, tSize, 'red', tXspeed, tYspeed));
-          levelTankCount++
+    if (gameState == 'playing') {
+      for (let i = levelTankCount; i < maxTanks; i++) {
+        tanks.push(new Tank(tXpos, tYpos, tSize, tSize, 'red', tXspeed, tYspeed));
+        levelTankCount++
       }
     }
   } //end of createTank
@@ -387,14 +373,6 @@
     }
   } //end of createKnight
 
-  function createLevels() {
-    var levels = [
-      [ //level 1
-        levelKnightCount = 6
-      ]
-    ]
-  }
-
   function mouseAction(evt) {
     var rect = canvas.getBoundingClientRect();
     var root = document.documentElement;
@@ -409,6 +387,7 @@
   } //end of mouseAction
 
   function keyPressed(evt) {
+    // mainloop();
     if (evt.keyCode == A_KEY) {
       aKeyPressed = true;
     }

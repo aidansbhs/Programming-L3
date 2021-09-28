@@ -103,7 +103,7 @@ class archerProjectile {
         this.x += this.xSpeed;
     }
     outOfbounds() {
-        return this.x < 0;
+        return this.x < 0 || this.x > canvas.width;
     }
     hitItem(item) {
         return (this.x + this.w > item.x && this.x < item.x + item.w) && (this.y + this.h > item.y && this.y < item.y + item.h);
@@ -129,26 +129,18 @@ class archerProjectile {
 }
 
 class mageProjectile {
-    constructor(x, y, w, h, r, c, xSpeed) {
+    constructor(x = 0, y = 0, r = 50, c = "pink", timer = 3) {
         this.x = x;
         this.y = y;
-        this.w = w;
-        this.h = h;
         this.r = r;
         this.c = c;
-        this.xSpeed = xSpeed;
+        this.timer = timer;
     }
     drawRect() {
         canvasContext.fillStyle = this.rgb;
         canvasContext.beginPath();
         canvasContext.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
         canvasContext.fill();
-    }
-    movement() {
-        this.x += this.xSpeed;
-    }
-    outOfbounds() {
-        return this.x < 0;
     }
     hitItem(item) {
         return (this.x + this.w > item.x && this.x < item.x + item.w) && (this.y + this.h > item.y && this.y < item.y + item.h);
@@ -163,7 +155,6 @@ class mageProjectile {
             collided = true;
             if (collided == true && health > 0) {
                 health -= 33;
-                // console.log(health);
             }
             if (health <= 0) {
                 // gameState = 'gameOver';

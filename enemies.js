@@ -105,7 +105,7 @@ class Tank {
     }
 
     movement() {
-        if(this.setup){
+        if (this.setup) {
             this.x = canvas.width - this.w;
             this.y = Math.floor(Math.random() * (yWall - 0) + yWall);
             this.setup = false;
@@ -138,23 +138,39 @@ class Mage {
         canvasContext.fillRect(this.x, this.y, this.w, this.h);
     }
 
+    distance(){
+        let y = this.y - player.y;
+        let x = this.x - player.x;
+                
+        return Math.sqrt(x * x + y * y); //calculates distance between mage and player
+    }
+
     movement() {
-        if(this.setup){
+        if (this.setup) {
             this.x = canvas.width - this.w;
             this.y = Math.floor(Math.random() * (yWall - 0) + yWall);
             this.setup = false;
         }
-        this.x -= this.xSpeed
 
-        if (this.x <= player.x) {
-            this.xSpeed = 0;
-        }
+        this.x -= this.xSpeed;
+
+        // mages.forEach(function(item){
+                if(this.distance() <= 800){ 
+                console.log('in range');
+                this.xSpeed = 0;
+            } else {
+                console.log('not in range');
+                this.x -= this.xSpeed;
+            }
+        // });
     }
     shooting() {
         if (gameState = 'playing') {
             if (this.x < canvas.width - this.w) {
-                if (this.projectiles.length < this.maxProjectiles) { //limits spamming
-                    this.projectiles.push(new mageProjectile(this.x + this.w / 2, this.y + this.h / 2, 20, 20, "pink", -6.5));
+                if ((this.distance() <= 800) && this.xSpeed == 0) {
+                    if (this.projectiles.length < this.maxProjectiles) { //limits spamming
+                        this.projectiles.push(new mageProjectile(player.x, player.y));
+                    }
                 }
             }
         }
