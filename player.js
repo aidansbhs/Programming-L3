@@ -1,4 +1,4 @@
-class Player {
+class Player { 
     constructor(x, y, w, h, c, xSpeed, ySpeed, maxArrows = 4) {
         this.x = x;
         this.y = y;
@@ -140,7 +140,7 @@ class Player {
 
     shooting() {
         if (this.arrows.length < this.maxArrows) { //limits spamming arrows
-            this.arrows.push(new playerProjectile(this.x + this.w / 2, this.y + this.h / 2, 10, 10, 'white', 7.5));
+            this.arrows.push(new playerProjectile(this.x + this.w / 2, this.y + this.h / 2, 10, 10, 'white', 7.5, JSON.parse(JSON.stringify(this.direction))));
         }
     }
 

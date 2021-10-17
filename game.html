@@ -51,18 +51,22 @@
   var mouseDown = false;
 
   var pSetUp = true;
-  var kSetUp = true;
-  var aSetUp = true;
   var gameStart = true;
   var yWall = 0;
   var xWall = 0;
+
+  var teleported = false;
+  var inRange = false;
+
   var arrowCount = 0;
   var maxArcherArrows = 0; //updated in main loop
   var maxPerArcher = 3;
+
   var maxArchers = 3;
   var maxKnights = 3;
   var maxTanks = 3;
   var maxMages = 3;
+
   var levelArcherCount = 0;
   var levelKnightCount = 0;
   var levelTankCount = 0;
@@ -71,6 +75,7 @@
   var singlePlayer = false;
   var multiPlayer = false;
   var gameState = 'mainMenu';
+  var difficulty = 'easy';
 
   //movement
 
@@ -94,8 +99,6 @@
   var jumping = false;
   var health = 100;
 
-  //variables 
-
   //player 1
   var pXpos = 0;
   var pYpos = 0;
@@ -110,33 +113,16 @@
   var archers = [];
   var tanks = [];
   var mages = [];
+
+  //projectiles
   var playerArrows = [];
   var archerArrows = [];
+  var mageInitialPs = [];
   var mageProjectiles = [];
 
   function mainloop() {
     // console.log(gameState);
     if (gameState == 'playing') {
-      levels = [0];
-      if (gameStart == true) {
-        gameSetup();
-        for (var i = 0; i < 3; i++) { //for loop for knights so it pushes three at start
-          createKnight();
-        }
-        for (var i = 0; i < 3; i++) {
-          createTank();
-        }
-        for (var i = 0; i < 3; i++) {
-          createMage();
-        }
-        gameStart = false;
-      }
-      // createKnight();
-      // createTank();
-      // createMage();
-      createArcher();
-      maxArcherArrows = maxPerArcher * JSON.parse(JSON.stringify(archers.length));
-
 
       drawImage(imageAssets.background1, 0, 0, canvas.width, canvas.height); //bg    
 
@@ -147,50 +133,29 @@
       if (multiPlayer == true) {
         gameSetup();
       }
-      player.drawRect();
-      player.movement();
-      player.depth();
-      player.collision();
-      player.attacking();
 
       player.arrows.forEach(function (playerArrow, i, array) {
         playerArrow.drawRect();
         playerArrow.movement();
 
-        if (playerArrow.outOfbounds()) {
+        if (playerArrow.outOfbounds() || playerArrow.knightCollision() || playerArrow.archerCollision() ||
+          playerArrow.tankCollision() || playerArrow.mageCollision()) {
           delete array[i]; //if the bullet goes out of canvas it will be deleted
           player.arrows = player.arrows.filter(item => item !== undefined);
           //checks if arrows are undefined (from when they get deleted) and will actually remove them 
         }
-        if (playerArrow.knightCollision()) {
-          delete array[i]; //same thing for when bullet hits knight
-          createKnight(); //creates a new knight 
-          player.arrows = player.arrows.filter(item => item !== undefined);
-          //checks if arrows are undefined (from when they get deleted) and will actually remove them
-        }
-        if (playerArrow.archerCollision()) {
-          delete array[i]; //same thing for when bullet hits knight
-          createArcher(); //creates a new knight 
-          player.arrows = player.arrows.filter(item => item !== undefined);
-          //checks if arrows are undefined (from when they get deleted) and will actually remove them
-        }
-        if (playerArrow.tankCollision()) {
-          delete array[i]; //same thing for when bullet hits knight
-          createTank(); //creates a new knight 
-          player.arrows = player.arrows.filter(item => item !== undefined);
-          //checks if arrows are undefined (from when they get deleted) and will actually remove them
-        }
-      });
+      }); //end of player arrows
 
       if (knights.length > 0) { //knights
         knights.forEach(function (knight, i, array) {
           knight.drawRect();
           knight.movement();
         });
-      }
+      } //end of knights
 
       if (archers.length > 0) { //archers
         archers.forEach(function (archer, i, array) {
+
           archer.drawRect();
           archer.movement();
           archer.shooting();
@@ -207,32 +172,40 @@
             }
           });
         });
-      }
+      } //end of archer & archer projectiles
 
       if (tanks.length > 0) { //tanks
         tanks.forEach(function (tank, i, array) {
           tank.drawRect();
           tank.movement();
         });
-      }
+      } //end of tanks
 
       if (mages.length > 0) { //mages
         mages.forEach(function (mage, i, array) {
           mage.drawRect();
           mage.movement();
-          mage.shooting();
+
+           mage.initialPs.forEach(function (mageInitial, i, array){
+              mageInitial.drawRect();
+
+              // if(initial == false){
+              //   delete array[i];
+              //   mage.initialPs = mageInitialPs.filter(item => item !== undefined);
+              // }
+           });
 
           mage.projectiles.forEach(function (mageProjectile, i, array) {
             mageProjectile.drawRect();
-            mageProjectile.movement();
 
-            if (mageProjectile.outOfbounds() || mageProjectile.playerCollision()) {
+            if (mageProjectile.playerCollision()) {
               delete array[i];
               mage.projectiles = mageProjectiles.filter(item => item !== undefined);
             }
           });
+          mage.shooting(); //only shoots after projectiles have been drawed
         });
-      }
+      } //end of mage & mage projectiles
 
     } else if (gameState == 'mainMenu') {
       drawMenu();
@@ -247,16 +220,29 @@
     colorRect(170, 302.5, canvas.width, canvas.height, '#8b5a2b'); //brown floor rectangle
     drawTriangle();
 
-    if (pSetUp) { //start pos
+    if (pSetUp) { //start pos for player
       player.x = canvas.width / 2 - player.w;
       player.y = canvas.height - player.h;
       pSetUp = false;
     }
 
-    yWall = canvas.height / 2.64465;
+    yWall = canvas.height / 2.64465; //y of top wall
     xWall = canvas.width / 9;
 
-    createLevels();
+    //enemies
+    // createKnight();
+    // createTank();
+    createMage();
+    // createArcher();
+    maxArcherArrows = maxPerArcher * JSON.parse(JSON.stringify(archers.length)); 
+    //updates the max arrows for archers based on how many pushed in
+
+    //player
+    player.drawRect();
+    player.movement();
+    player.depth();
+    player.collision();
+    player.attacking();
   } //end of gameSetup
 
   function loadImages() { //images are stored here
@@ -265,6 +251,12 @@
     imgs.background1.src = 'imgs/Background/background1.png'; //background
     imgs.menuScreen = new Image();
     imgs.menuScreen.src = 'imgs/Background/menuScreen.png'; //menu screen
+    imgs.singlePlayer = new Image();
+    imgs.singlePlayer.src = '';
+    imgs.multiPlayer = new Image();
+    imgs.multiPlayer.src = '';
+    imgs.instructions = new Image();
+    imgs.instructions.src = '';
     return imgs;
   } //end of loadImages
 
@@ -292,41 +284,44 @@
         if (mouseY > yBox + (i * (85 + 35)) && mouseX > xBox && mouseY < yBox + (i * (85 + 35) + 85) && mouseX < xBox +
           250) { //hitbox for when mouse goes over boxes
           if (i == 0 && mouseDown == true && x == "run") {
+            // gameState = 'singlePlayer';
             singlePlayer = true;
             gameState = 'playing';
           }
           if (i == 1 && mouseDown == true && x == "run") {
+            // gameState = 'multiPlayer';
             multiPlayer = true;
             gameState = 'playing';
           }
           if (i == 2 && mouseDown == true && x == "run") {
-            console.log('instructions');
+            gameState = 'instructions';
           }
         }
       }
     }
+    // if(gameState == 'singlePlayer'){
+    //   drawImage(imageAssets.menuScreen, 0, 0, canvas.width, canvas.height); //single player menu screen
+    // }
   } //end of buttons
 
   function createKnight() {
-    kSize = 40;
+    kSize = 50;
     kYpos = Math.floor(Math.random() * (yWall - 0) + yWall); //random y wall spawn point 
     kXpos = Math.floor(Math.random() * (1650 - 1400) +
       1650); //makes it random spawing outside maps so won't spawn inside of each other
     kXspeed = 3;
     kYspeed = Math.floor(Math.random() * (12 - 3) + 3);
 
-    var knight = new Knight(kXpos, kYpos, kSize, kSize, 'yellow', kXspeed, kYspeed);
-
-    // if (gameState = 'playing') {
-    //   for (let i = levelKnightCount; i < maxKnights; i++) {
-    //     knights.push(knight);
-    //     levelKnightCount++
-    //   }
-    // }
-    knights.push(knight);
+    if (gameState = 'playing') {
+      for (let i = levelKnightCount; i < maxKnights; i++) {
+        knights.push(new Knight(kXpos, kYpos, kSize, kSize, 'yellow', kXspeed, kYspeed)); 
+        //pushes certain amount of knights based off the set max value
+        levelKnightCount++; //updates the level count to how many knights have been pushed
+      }
+    }
   } //end of createKnight
 
-  function createArcher() { //only runs once based off gamestart
+  function createArcher() { 
     aSize = 40;
     aYpos = Math.floor(Math.random() * (yWall - 0) + yWall);
     aXpos = Math.floor(Math.random() * (1600 - 1400) +
@@ -334,21 +329,20 @@
     aXspeed = 5;
     aYspeed = Math.floor(Math.random() * (12 - 3) + 3);
 
-    var archer = new Archer(aXpos, aYpos, aSize, aSize, 'orange', aXspeed, aYspeed);
-
     if (enemyPastCheck(knights) && levelArcherCount < maxArchers) {
       for (let i = levelArcherCount; i < maxArchers; i++) {
-        archers.push(archer);
-        console.log(archers)
+        archers.push(new Archer(aXpos, aYpos, aSize, aSize, 'orange', aXspeed,
+          aYspeed)); //needs to be inside for loop to create new Archer otherwise it just duplicates the same archer  
         levelArcherCount++;
       }
     }
   } //end of createArcher
 
-  function enemyPastCheck(array) {
+  function enemyPastCheck(array) { 
+    //archers will not move unless all the knights are passed a certain point on canvas
     let cc = true;
-    array.forEach(knight => { //for each knight
-      if (knight.x >= canvas.width / 5 * 3.75) { //if past certain point on canvas
+    array.forEach(knights => { //for each knight
+      if (knights.x >= canvas.width / 5 * 3.75) { //if past certain point on canvas
         cc = false;
       }
     });
@@ -356,49 +350,34 @@
   } //end of enemyPastCheck
 
   function createTank() {
-    tSize = 60;
+    tSize = 70;
     tYpos = Math.floor(Math.random() * (yWall - 0) + yWall); //random y wall spawn point 
     tXpos = Math.floor(Math.random() * (1650 - 1400) + 1650);
-    tXspeed = 2;
+    tXspeed = 1;
     tYspeed = Math.floor(Math.random() * (12 - 3) + 3);
 
-    var tank = new Tank(tXpos, tYpos, tSize, tSize, 'red', tXspeed, tYspeed);
-
-    //   if (gameState == 'playing') {
-    //     for (let i = levelTankCount; i < maxTanks; i++) {
-    //     // if (levelTankCount < maxTanks) {
-    //       tanks.push(tank);
-    //       levelTankCount++
-    //   }
-    // }
-    tanks.push(tank);
+    if (gameState == 'playing') {
+      for (let i = levelTankCount; i < maxTanks; i++) {
+        tanks.push(new Tank(tXpos, tYpos, tSize, tSize, 'red', tXspeed, tYspeed));
+        levelTankCount++
+      }
+    }
   } //end of createTank
 
   function createMage() {
-    mSize = 40;
+    mSize = 45;
     mYpos = Math.floor(Math.random() * (yWall - 0) + yWall); //random y wall spawn point 
     mXpos = Math.floor(Math.random() * (1650 - 1400) + 1650);
-    mXspeed = 4;
+    mXspeed = 2;
     mYspeed = Math.floor(Math.random() * (12 - 3) + 3);
 
-    var mage = new Mage(mXpos, mYpos, mSize, mSize, 'purple', mXspeed, mYspeed);
-
-    // if (gameState == 'playing') {
-    //   for (let i = levelMageCount; i < maxMages; i++) {
-    //     mages.push(mage);
-    //     levelMageCount++
-    //   }
-    // }
-    mages.push(mage);
+    if (gameState == 'playing') {
+      for (let i = levelMageCount; i < maxMages; i++) {
+        mages.push(new Mage(mXpos, mYpos, mSize, mSize, 'purple', mXspeed, mYspeed));
+        levelMageCount++
+      }
+    }
   } //end of createKnight
-
-  function createLevels() {
-   var levels = [
-      [ //level 1
-        levelKnightCount = 6
-      ]
-    ]
-  }
 
   function mouseAction(evt) {
     var rect = canvas.getBoundingClientRect();
@@ -414,6 +393,7 @@
   } //end of mouseAction
 
   function keyPressed(evt) {
+    // mainloop();
     if (evt.keyCode == A_KEY) {
       aKeyPressed = true;
     }

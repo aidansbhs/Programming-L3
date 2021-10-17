@@ -1,21 +1,23 @@
-class playerProjectile {
-    constructor(x, y, w, h, c, xSpeed) {
+class playerProjectile { 
+    constructor(x, y, w, h, c, xSpeed, direction) {
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
         this.c = c;
         this.xSpeed = xSpeed;
+        this.direction = direction;
+        
     }
     drawRect() {
-        canvasContext.fillStyle = this.c;
+        canvasContext.fillStyle = this.c;   
         canvasContext.fillRect(this.x, this.y, this.w, this.h);
     }
     movement() {
-        this.x += this.xSpeed;
+        this.x += this.xSpeed * this.direction;
     }
     outOfbounds() {
-        return this.x > canvas.width;
+        return this.x > canvas.width || this.x < 0;
     }
     hitItem(item) {
         return (this.x + this.w > item.x && this.x < item.x + item.w) && (this.y + this.h > item.y && this.y < item.y + item.h);
@@ -28,6 +30,9 @@ class playerProjectile {
     }
     hitTank(tank) {
         return this.hitItem(tank);
+    }
+    hitMage(mage){
+        return this.hitItem(mage);
     }
     knightCollision() {
         let self = this;
@@ -67,6 +72,18 @@ class playerProjectile {
         tanks = tanks.filter(item => item !== undefined);
         return collided;
     }
+    mageCollision(){
+        let self = this;
+        let collided = false;
+        mages.forEach(function (mage, i) {
+            if (self.hitMage(mage)) {
+                delete mages[i];
+                collided = true;
+            }
+        });
+        mages = mages.filter(item => item !== undefined);
+        return collided;
+    }
 }
 
 class archerProjectile {
@@ -86,7 +103,7 @@ class archerProjectile {
         this.x += this.xSpeed;
     }
     outOfbounds() {
-        return this.x < 0;
+        return this.x < 0 || this.x > canvas.width;
     }
     hitItem(item) {
         return (this.x + this.w > item.x && this.x < item.x + item.w) && (this.y + this.h > item.y && this.y < item.y + item.h);
@@ -111,25 +128,42 @@ class archerProjectile {
     }
 }
 
-class mageProjectile {
-    constructor(x, y, w, h, c, xSpeed) {
+
+class mageInitial {
+    constructor(x, y, r, c) {
         this.x = x;
         this.y = y;
-        this.w = w;
-        this.h = h;
+        this.r = r;
         this.c = c;
-        this.xSpeed = xSpeed;
     }
     drawRect() {
         canvasContext.fillStyle = this.c;
-        canvasContext.fillRect(this.x, this.y, this.w, this.h);
+        canvasContext.beginPath();
+        canvasContext.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
+        canvasContext.fill();
     }
-    movement() {
-        this.x += this.xSpeed;
+
+}
+
+class mageProjectile {
+    constructor(x, y, r, c) {
+        this.x = x;
+        this.y = y;
+        this.r = r;
+        this.c = c;
     }
-    outOfbounds() {
-        return this.x < 0;
+    drawRect() {
+        canvasContext.fillStyle = this.c;
+        canvasContext.beginPath();
+        canvasContext.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
+        canvasContext.fill();
     }
+
+    //create a two circles? an inital point of impact and the actual projectile
+    //timer between those two circles, eg 1 second of charging up until fired
+    //leave aoe fire mark that will continue to burn for 3-5 seconds
+    //long reload time, each mage can only fire one fire projectile at once, the reload is based off the impact projectile and not the fire mark
+
     hitItem(item) {
         return (this.x + this.w > item.x && this.x < item.x + item.w) && (this.y + this.h > item.y && this.y < item.y + item.h);
     }
@@ -143,7 +177,6 @@ class mageProjectile {
             collided = true;
             if (collided == true && health > 0) {
                 health -= 33;
-                // console.log(health);
             }
             if (health <= 0) {
                 // gameState = 'gameOver';
@@ -152,3 +185,4 @@ class mageProjectile {
         return collided;
     }
 }
+
