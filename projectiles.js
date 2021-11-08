@@ -185,4 +185,3 @@ class mageProjectile {
         return collided;
     }
 }
-

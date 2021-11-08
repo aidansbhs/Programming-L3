@@ -1,5 +1,5 @@
 class Knight {
-    constructor(x, y, w, h, c, xSpeed, ySpeed) {
+    constructor(x = 0, y = 0, w = 40, h = 40, c = "yellow", xSpeed = 3, ySpeed = 3) {
         this.x = x;
         this.y = y;
         this.w = w;
@@ -7,6 +7,7 @@ class Knight {
         this.c = c;
         this.xSpeed = xSpeed;
         this.ySpeed = ySpeed;
+        this.direction = 1;
         this.setup = true;
     }
 
@@ -16,29 +17,78 @@ class Knight {
     }
 
     movement() {
-        if (this.setup) {
-            this.x = canvas.width - this.w;
-            this.y = Math.floor(Math.random() * (yWall - 0) + yWall);
-            this.setup = false;
-        }
+        if (this.length <= 2) {
+            if (this.x <= player.x) {
+                this.x += this.xSpeed;
+                this.directon = 1;
+            }
 
-        if (this.x <= player.x) {
-            this.x += this.xSpeed;
-        }
+            if (this.x >= player.x) {
+                this.x -= this.xSpeed;
+                this.directon = 0;
+            }
 
-        if (this.x >= player.x) {
-            this.x -= this.xSpeed;
-        }
+            if (this.y <= player.y) {
+                this.y += this.ySpeed;
+            }
+            if (this.y >= player.y) {
+                this.y -= this.ySpeed;
+            }
+            if (this.y < yWall) {
+                this.y = yWall;
+            }
+        } else {
+            //     //decided by random who moves and who stays
+            //     //2 move towards player the rest not move or relocate
+            if ((Math.random(Math.floor() * (2 - 1) + 1)) >= 0.5) {
+                //run program a
+                for(let i = 0; i < this.length; i++){
+                    this.distance()     
+                 // finds the knight closest to player
+                   console.log(i);
+                }
+            } else {
+                //run program b
 
-        if (this.y <= player.y) {
-            this.y += this.ySpeed;
+            }
+
         }
-        if (this.y >= player.y) {
-            this.y -= this.ySpeed;
+    }
+
+    distance() {
+        let y = this.y - player.y;
+        let x = this.x - player.x;
+
+        return Math.sqrt(x * x + y * y); //calculates distance between mage and player
+    }
+
+    dodge() {
+        if (inRange == true && xKeyPressed == true) {
+            Math.random(Math.floor() * (100 - 3) + 3); //3% chance to dodge attacks
         }
-        if (this.y < yWall) {
-            this.y = yWall;
+    }
+
+    attack() {
+        var self = this;
+        var inRange = false;
+        var attacked = false;
+        if ((((self.x + self.w) + (self.w * self.direction)) > (player.x)) && (((self.x - self.w) + (self.w * self.direction)) < (player.x + player.w)) && ((self.y) < (player.y + player.h)) && ((self.y + self.h) > (player.y))) {
+            inRange = true;
         }
+        // console.log(inRange);
+
+        while (inRange == true) {
+            if (attacked == false) {
+                setTimeout(() => {
+                    if (player.health > 0) {
+                        player.health -= 10;
+                    }
+                }, 500);
+            }
+            attacked = true;
+            inRange = false;
+        }
+        // console.log(attacked);
     }
 }
 
@@ -53,6 +103,7 @@ class Archer {
         this.ySpeed = ySpeed;
         this.maxArrows = maxArrows;
         this.arrows = [];
+        this.directon = 1;
         this.setup = true;
     }
 
@@ -96,6 +147,7 @@ class Tank {
         this.c = c;
         this.xSpeed = xSpeed;
         this.ySpeed = ySpeed;
+        this.directon = 1;
         this.setup = true;
 
     }
@@ -132,7 +184,10 @@ class Mage {
         this.maxInitialPs = maxInitialPs;
         this.maxProjectiles = maxProjectiles;
         this.projectiles = [];
+        this.directon = 1;
         this.setup = true;
+        this.counter = 0;
+        this.cooldown = 3;
     }
     drawRect() {
         canvasContext.fillStyle = this.c;
@@ -187,28 +242,32 @@ class Mage {
 
     }
     shooting() {
-        // var firing = function (){
-        //     this.projectiles.push(new mageProjectile(player.x, player.y, 50, "red"));
-        // };
-        var initial = false;
-
-
         if (gameState = 'playing') {
             if (this.x < canvas.width - this.w) { //inside canvas
-                if (inRange == true) {
-                    if (this.initialPs.length < this.maxInitialPs && initial == false) {
+                if (inRange == true && this.cooldown == 3) {
+                    if (this.initialPs.length < this.maxInitialPs) {
                         this.initialPs.push(new mageInitial(player.x, player.y, 50, "white"));
-                        initial = true;
-                        //wait for one second
                     }
-                    if (this.projectiles.length < this.maxProjectiles && initial == true) { //limits spamming
+                    this.cooldown--;
+                    if (this.counter < this.maxProjectiles) { //limits spamming
+                        this.counter++;
+                        setTimeout(() => {
+                            this.projectiles.push(new mageProjectile(this.initialPs[this.initialPs.length - 1].x, this.initialPs[this.initialPs.length - 1].y, 50, "red"));
+                            this.initialPs = [];
+                            this.counter--;
+                        }, 800); //shoots to the initial circles coordinates after delay
 
                         setTimeout(() => {
-                            this.projectiles.push(new mageProjectile(player.x, player.y, 50, "red"));
-                        }, 1000); //shoots to the initial circles coordinates after delay
+                            delete this.projectiles;
+                            this.projectiles = mageProjectiles.filter(item => item !== undefined);
 
-                        initial = false;
+                        }, 3000);
+
+                        setTimeout(() => {
+                            this.cooldown = 3;
+                        }, 2500);
                     }
+
                 }
             }
         }

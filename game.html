@@ -9,7 +9,6 @@
   <script src="player.js"></script>
   <script src="enemies.js"></script>
   <script src="projectiles.js"></script>
-  <script src="levels.js"></script>
 </body>
 <script>
   var canvas, canvasContext;
@@ -97,7 +96,6 @@
   var gravity = 0.1;
   var jumpForce = -30;
   var jumping = false;
-  var health = 100;
 
   //player 1
   var pXpos = 0;
@@ -150,6 +148,7 @@
         knights.forEach(function (knight, i, array) {
           knight.drawRect();
           knight.movement();
+          knight.attack();
         });
       } //end of knights
 
@@ -188,11 +187,6 @@
 
            mage.initialPs.forEach(function (mageInitial, i, array){
               mageInitial.drawRect();
-
-              // if(initial == false){
-              //   delete array[i];
-              //   mage.initialPs = mageInitialPs.filter(item => item !== undefined);
-              // }
            });
 
           mage.projectiles.forEach(function (mageProjectile, i, array) {
@@ -205,8 +199,9 @@
           });
           mage.shooting(); //only shoots after projectiles have been drawed
         });
-      } //end of mage & mage projectiles
 
+      } //end of mage & mage projectiles
+      player.drawRect();
     } else if (gameState == 'mainMenu') {
       drawMenu();
     } else if (gameState == 'gameOver') {
@@ -220,25 +215,21 @@
     colorRect(170, 302.5, canvas.width, canvas.height, '#8b5a2b'); //brown floor rectangle
     drawTriangle();
 
-    if (pSetUp) { //start pos for player
-      player.x = canvas.width / 2 - player.w;
-      player.y = canvas.height - player.h;
-      pSetUp = false;
-    }
-
     yWall = canvas.height / 2.64465; //y of top wall
     xWall = canvas.width / 9;
 
     //enemies
     // createKnight();
     // createTank();
-    createMage();
+    // createMage();
     // createArcher();
+
     maxArcherArrows = maxPerArcher * JSON.parse(JSON.stringify(archers.length)); 
     //updates the max arrows for archers based on how many pushed in
 
+    currentLevel = JSON.parse(JSON.stringify(levels)); //clones the array 
+
     //player
-    player.drawRect();
     player.movement();
     player.depth();
     player.collision();
@@ -310,7 +301,7 @@
     kXpos = Math.floor(Math.random() * (1650 - 1400) +
       1650); //makes it random spawing outside maps so won't spawn inside of each other
     kXspeed = 3;
-    kYspeed = Math.floor(Math.random() * (12 - 3) + 3);
+    kYspeed = 2;
 
     if (gameState = 'playing') {
       for (let i = levelKnightCount; i < maxKnights; i++) {
@@ -483,6 +474,7 @@
     canvasContext.fillRect(x, y, w, h);
   } //end of colorRect
 </script>
+<script src="levels.js"></script>
 <style>
   * {
     margin: 0px;
