@@ -1,4 +1,4 @@
-class playerProjectile {
+class playerProjectile { 
     constructor(x, y, w, h, c, xSpeed, direction) {
         this.x = x;
         this.y = y;
@@ -128,20 +128,40 @@ class archerProjectile {
     }
 }
 
-class mageProjectile {
-    constructor(x = 0, y = 0, r = 50, c = "pink", timer = 3) {
+class mageInitial {
+    constructor(x, y, r, c) {
         this.x = x;
         this.y = y;
         this.r = r;
         this.c = c;
-        this.timer = timer;
     }
     drawRect() {
-        canvasContext.fillStyle = this.rgb;
+        canvasContext.fillStyle = this.c;
         canvasContext.beginPath();
         canvasContext.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
         canvasContext.fill();
     }
+}
+
+class mageProjectile {
+    constructor(x, y, r, c) {
+        this.x = x;
+        this.y = y;
+        this.r = r;
+        this.c = c;
+    }
+    drawRect() {
+        canvasContext.fillStyle = this.c;
+        canvasContext.beginPath();
+        canvasContext.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
+        canvasContext.fill();
+    }
+
+    //create a two circles? an inital point of impact and the actual projectile
+    //timer between those two circles, eg 1 second of charging up until fired
+    //leave aoe fire mark that will continue to burn for 3-5 seconds
+    //long reload time, each mage can only fire one fire projectile at once, the reload is based off the impact projectile and not the fire mark
+
     hitItem(item) {
         return (this.x + this.w > item.x && this.x < item.x + item.w) && (this.y + this.h > item.y && this.y < item.y + item.h);
     }
