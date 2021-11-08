@@ -128,7 +128,6 @@ class archerProjectile {
     }
 }
 
-
 class mageInitial {
     constructor(x, y, r, c) {
         this.x = x;
@@ -142,7 +141,6 @@ class mageInitial {
         canvasContext.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
         canvasContext.fill();
     }
-
 }
 
 class mageProjectile {

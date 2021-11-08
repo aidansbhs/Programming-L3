@@ -54,9 +54,6 @@
   var yWall = 0;
   var xWall = 0;
 
-  var teleported = false;
-  var inRange = false;
-
   var arrowCount = 0;
   var maxArcherArrows = 0; //updated in main loop
   var maxPerArcher = 3;
@@ -136,6 +133,7 @@
         playerArrow.drawRect();
         playerArrow.movement();
 
+
         if (playerArrow.outOfbounds() || playerArrow.knightCollision() || playerArrow.archerCollision() ||
           playerArrow.tankCollision() || playerArrow.mageCollision()) {
           delete array[i]; //if the bullet goes out of canvas it will be deleted
@@ -158,7 +156,7 @@
           archer.drawRect();
           archer.movement();
           archer.shooting();
-
+          
           archer.arrows.forEach(function (archerArrow, i, array) {
             //made an array for arrows in archers class and therefore will run for each archer, making it so the arrows are distributed equally
             archerArrow.drawRect();
@@ -312,7 +310,7 @@
     }
   } //end of createKnight
 
-  function createArcher() { 
+  function createArcher() { //only runs once based off gamestart
     aSize = 40;
     aYpos = Math.floor(Math.random() * (yWall - 0) + yWall);
     aXpos = Math.floor(Math.random() * (1600 - 1400) +
@@ -345,7 +343,7 @@
     tYpos = Math.floor(Math.random() * (yWall - 0) + yWall); //random y wall spawn point 
     tXpos = Math.floor(Math.random() * (1650 - 1400) + 1650);
     tXspeed = 1;
-    tYspeed = Math.floor(Math.random() * (12 - 3) + 3);
+    tXspeed = 2;
 
     if (gameState == 'playing') {
       for (let i = levelTankCount; i < maxTanks; i++) {
@@ -360,7 +358,7 @@
     mYpos = Math.floor(Math.random() * (yWall - 0) + yWall); //random y wall spawn point 
     mXpos = Math.floor(Math.random() * (1650 - 1400) + 1650);
     mXspeed = 2;
-    mYspeed = Math.floor(Math.random() * (12 - 3) + 3);
+    mXspeed = 4;
 
     if (gameState == 'playing') {
       for (let i = levelMageCount; i < maxMages; i++) {
@@ -368,7 +366,7 @@
         levelMageCount++
       }
     }
-  } //end of createKnight
+  } //end of createMage
 
   function mouseAction(evt) {
     var rect = canvas.getBoundingClientRect();

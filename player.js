@@ -108,6 +108,10 @@ class Player {
         });
         return [name, counter]
     }
+  
+    hitItem(item) {
+        return (this.x + this.w > item.x && this.x < item.x + item.w) && (this.y + this.h > item.y && this.y < item.y + item.h);
+    }
 
     collision() {
         let enemy0 = this.hitItem(knights, "knights");
@@ -129,10 +133,10 @@ class Player {
         return collided;
     }
 
-    attackRange(array, name) {
+    attackRange(array,name) {
         let counter = [];
         let self = this;
-        array.forEach(function (item, i) {
+        array.forEach(function(item, i){
             if ((((self.x + self.w * 2) + (self.w / 2 * self.direction)) > (item.x)) && (((self.x - self.w) + (self.w * self.direction)) < (item.x + item.w)) && ((self.y) < (item.y + item.h)) && ((self.y + self.h) > (item.y))) {
                 counter.push(i);
             }
@@ -141,7 +145,7 @@ class Player {
     }
 
     attacking() {
-        if (xKeyPressed == true) {
+        if(xKeyPressed == true){
             var enemy0 = this.attackRange(knights, "knights"); //returns knights inside of the attackRange hitbox ["knights,[(hit people)]"]
             var enemy1 = this.attackRange(archers, "archers");
             var enemy2 = this.attackRange(tanks, "tanks");
@@ -152,7 +156,7 @@ class Player {
                     eval(eval("enemy" + i)[0])[eval("enemy" + i)[1][ii]] = "undefined"; //turns hit enemy to undifined - eval converts enemy variable name "knights" into the actually variable called knights 
                     run = true;
                 }
-                if (run) {
+                if(run){
                     window[eval("enemy" + i)[0]] = eval(eval("enemy" + i)[0]).filter(item => item !== "undefined"); //filters undifinded enemy from array and window will find the private variable no matter what
                 }
             }

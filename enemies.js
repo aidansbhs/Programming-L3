@@ -49,9 +49,7 @@ class Knight {
                 }
             } else {
                 //run program b
-
             }
-
         }
     }
 
@@ -267,7 +265,6 @@ class Mage {
                             this.cooldown = 3;
                         }, 2500);
                     }
-
                 }
             }
         }
