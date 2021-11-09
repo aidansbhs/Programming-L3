@@ -49,8 +49,6 @@
   var mouseY = 0;
   var mouseDown = false;
 
-  var pSetUp = true;
-  var gameStart = true;
   var yWall = 0;
   var xWall = 0;
 
@@ -67,11 +65,14 @@
   var levelKnightCount = 0;
   var levelTankCount = 0;
   var levelMageCount = 0;
+  var randomActionSelect = 2;
 
   var singlePlayer = false;
   var multiPlayer = false;
   var gameState = 'mainMenu';
+  var name = '';
   var difficulty = 'easy';
+  var difficultyPercentage = 1;
 
   //movement
 
@@ -94,7 +95,7 @@
   var jumpForce = -30;
   var jumping = false;
 
-  //player 1
+  //player 1 
   var pXpos = 0;
   var pYpos = 0;
   var pXspeed = 5;
@@ -213,7 +214,7 @@
     colorRect(170, 302.5, canvas.width, canvas.height, '#8b5a2b'); //brown floor rectangle
     drawTriangle();
 
-    yWall = canvas.height / 2.64465; //y of top wall
+    yWall = canvas.height / 2.62; //y of top wall
     xWall = canvas.width / 9;
 
     //enemies
@@ -226,6 +227,13 @@
     //updates the max arrows for archers based on how many pushed in
 
     currentLevel = JSON.parse(JSON.stringify(levels)); //clones the array 
+
+    if(difficulty == "easy"){
+      difficultyPercentage = 1;
+    }
+    if (difficulty == "hard") {
+      difficultyPercentage = 1.25;
+    }
 
     //player
     player.movement();
@@ -293,6 +301,23 @@
     // }
   } //end of buttons
 
+        // function nameRecorder(evt){
+        //   console.log(evt);
+        //   // let letter = String.fromCharCode(evt.keyCode).toLowerCase();
+        //   if(evt.keyCode >= 48 && evt.keyCode <= 57) {
+        //     name += String.fromCharCode(evt.keyCode);
+        //   } else if (evt.keyCode >= 65 && evt.keyCode <= 90 || evt.keyCode == 32) {
+        //     if(evt.shiftKey == true){
+        //       name += String.fromCharCode(evt.keyCode).toUpperCase();
+        //     } else {
+        //       name += String.fromCharCode(evt.keyCode).toLowerCase();
+        //     }
+        //   }
+        //   if(evt.keyCode == 8){
+        //     name = name.substring(0, name.length - 1);
+        //   }
+        // } //end of nameRecorder
+
   function createKnight() {
     kSize = 50;
     kYpos = Math.floor(Math.random() * (yWall - 0) + yWall); //random y wall spawn point 
@@ -342,7 +367,7 @@
     tSize = 70;
     tYpos = Math.floor(Math.random() * (yWall - 0) + yWall); //random y wall spawn point 
     tXpos = Math.floor(Math.random() * (1650 - 1400) + 1650);
-    tXspeed = 1;
+    tYspeed = 1;
     tXspeed = 2;
 
     if (gameState == 'playing') {
@@ -357,7 +382,7 @@
     mSize = 45;
     mYpos = Math.floor(Math.random() * (yWall - 0) + yWall); //random y wall spawn point 
     mXpos = Math.floor(Math.random() * (1650 - 1400) + 1650);
-    mXspeed = 2;
+    mYspeed = 2;
     mXspeed = 4;
 
     if (gameState == 'playing') {
@@ -367,6 +392,12 @@
       }
     }
   } //end of createMage
+
+  function nextLevel(){
+    if(currentLevel[0-3][3] = 'null' && player.x == canvas.width - player.h){
+        currentLevel++;
+    }
+  } //end of nextLevel
 
   function mouseAction(evt) {
     var rect = canvas.getBoundingClientRect();
@@ -383,6 +414,8 @@
 
   function keyPressed(evt) {
     // mainloop();
+    // nameRecorder(evt);
+
     if (evt.keyCode == A_KEY) {
       aKeyPressed = true;
     }

@@ -6,17 +6,29 @@ var levels = [
         [knightPush(400, 600), knightPush(400, 400), knightPush(1200, 600), knightPush(1200, 400)] //enemies
 
     ],
-    [ //level 2
-        ['imgs/Background/background1.png', cutScenes()],
-        [''],
-        ['health'],
-        [tankPush(1200, 400), archerPush(1400, 600), archerPush(1400, 200)]
-    ],
+    // [ //level 2
+    //     ['imgs/Background/background1.png', cutScenes()],
+    //     [''],
+    //     ['health'],
+    //     [tankPush(1200, 400), archerPush(1400, 600), archerPush(1400, 200)]
+    // ],
     // [ //level 3
     //     ['imgs/Background/background1.png', cutScenes()],
     //     [''],
     //     [''],
     //     [knightPush(1100, 300), magePush(1300, 400), magePush(1300, 200)]
+    // ],
+    // [ //level 4
+    //     ['imgs/Background/background1.png', cutScenes()],
+    //     [''],
+    //     [''],
+    //     [archerPush(300, 500), archerPush(300, 500), archerPush(300, 500), archerPush(300, 500), archerPush(300, 500)] - then 2 more after a delay?
+    // ],
+    // [ //level 5
+    //     ['imgs/Background/background1.png', cutScenes()],
+    //     [''],
+    //     [''],
+    //     []
     // ]
 ];
 

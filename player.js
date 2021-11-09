@@ -122,7 +122,7 @@ class Player {
         var collided = false;
 
         for (let i = 0; i < 4; i++) {
-            for (let ii = 0; ii < eval("enemy" + i)[1].length; ii++) {
+            for (let ii = 0; ii < eval("enemy" + i).length; ii++) {
                 collided = true;
             }
         }
