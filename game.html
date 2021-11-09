@@ -49,8 +49,6 @@
   var mouseY = 0;
   var mouseDown = false;
 
-  var pSetUp = true;
-  var gameStart = true;
   var yWall = 0;
   var xWall = 0;
 
@@ -67,11 +65,13 @@
   var levelKnightCount = 0;
   var levelTankCount = 0;
   var levelMageCount = 0;
+  var randomActionSelect = 2;
 
   var singlePlayer = false;
   var multiPlayer = false;
   var gameState = 'mainMenu';
   var difficulty = 'easy';
+  var difficultyPercentage = 1;
 
   //movement
 
@@ -94,7 +94,7 @@
   var jumpForce = -30;
   var jumping = false;
 
-  //player 1
+  //player 1 
   var pXpos = 0;
   var pYpos = 0;
   var pXspeed = 5;
@@ -213,19 +213,26 @@
     colorRect(170, 302.5, canvas.width, canvas.height, '#8b5a2b'); //brown floor rectangle
     drawTriangle();
 
-    yWall = canvas.height / 2.64465; //y of top wall
+    yWall = canvas.height / 2.62; //y of top wall
     xWall = canvas.width / 9;
 
     //enemies
     // createKnight();
     // createTank();
-    createMage();
+    // createMage();
     // createArcher();
 
     maxArcherArrows = maxPerArcher * JSON.parse(JSON.stringify(archers.length)); 
     //updates the max arrows for archers based on how many pushed in
 
     currentLevel = JSON.parse(JSON.stringify(levels)); //clones the array 
+
+    if(difficulty == "easy"){
+      difficultyPercentage = 1;
+    }
+    if (difficulty == "hard") {
+      difficultyPercentage = 1.25;
+    }
 
     //player
     player.movement();

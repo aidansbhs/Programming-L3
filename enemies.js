@@ -1,5 +1,5 @@
 class Knight {
-    constructor(x = 0, y = 0, w = 40, h = 40, c = "yellow", xSpeed = 3, ySpeed = 3) {
+    constructor(x = 0, y = 0, w = 40, h = 40, c = "yellow", xSpeed = 2.5 * difficultyPercentage, ySpeed = 1.5) {
         this.x = x;
         this.y = y;
         this.w = w;
@@ -9,6 +9,7 @@ class Knight {
         this.ySpeed = ySpeed;
         this.direction = 1;
         this.setup = true;
+        this.cooldown = 1;
     }
 
     drawRect() {
@@ -17,44 +18,34 @@ class Knight {
     }
 
     movement() {
-        if (this.length <= 2) {
-            if (this.x <= player.x) {
-                this.x += this.xSpeed;
-                this.directon = 1;
-            }
+        if (this.y + 1.74 * this.x <= 605) { //y=mx+c for diagonal wall
+            let rise = 1.74 / 2.74;
+            let run = 1 / 2.74;
+            this.y -= this.ySpeed * rise; //makes it able to 'slide' up the wall instead of stopping by calculating the rise and run and substituting into speed
+            this.x += this.ySpeed * run;
+        }
 
-            if (this.x >= player.x) {
-                this.x -= this.xSpeed;
-                this.directon = 0;
-            }
+        if (this.y < yWall) { //can't go above the y wall
+            this.y = yWall;
+        }
 
-            if (this.y <= player.y) {
-                this.y += this.ySpeed;
-            }
-            if (this.y >= player.y) {
-                this.y -= this.ySpeed;
-            }
-            if (this.y < yWall) {
-                this.y = yWall;
-            }
-        } else {
+        if (this.y + this.h > canvas.height) { //can't go below canvas height
+            this.y = canvas.height - this.h;
+        }
 
-            var randomActionSelect = Math.floor(Math.random() * 3);
-
-            if (randomActionSelect == 0) {
-                this.randomLocation();
-            } else if (randomActionSelect == 1) {
-                this.attackPlayer();
-            } else if (randomActionSelect == 2) {
-                this.decoy();
-            }
+        if (randomActionSelect == 0) {
+            this.randomLocation();
+        } else if (randomActionSelect == 1) {
+            this.attackPlayer();
+        } else if (randomActionSelect == 2) {
+            this.decoy();
         }
     }
 
-    randomLocation(x,y,radius) {
+    randomLocation(x, y, radius) {
         var randomLocation = [];
-        randomLocation.push(x+((Math.random() * radius * 2) + radius));
-        randomLocation.push(y+((Math.random() * radius * 2) + radius));
+        randomLocation.push(x + ((Math.random() * radius * 2) + radius));
+        randomLocation.push(y + ((Math.random() * radius * 2) + radius));
     }
 
     attackPlayer() {
@@ -80,18 +71,70 @@ class Knight {
     }
 
     decoy() {
-        console.log('decoy');
+        var decoyRun = false;
+        var temp = false;
+        var pathing = Math.floor(Math.random() * 2);
+
+        if (temp == false) {
+
+            if (decoyRun == false) { //has not performed the decoy run yet
+                if (this.y == player.y) { //if knight y is equal to player's y
+                    if (pathing == 0) { //if randomised pathing equals to option 0
+                        if (this.y >= player.y && this.y > 280) {
+                            this.y += this.ySpeed; //go up
+                        }
+                    } else if (pathing == 1) { //if randomised pathing equals to option 1
+                        if (this.y <= player.y && this.y > 20) {
+                            this.y -= this.ySpeed; //go down
+                        }
+                    }
+                }
+                if (this.y > player.y) { //if knight y already greater than player y
+                    if (this.y >= player.y && this.y > 280) {
+                        this.y += this.ySpeed; //keeping going up
+                    }
+                } else if (this.y < player.y) { //if knight y is less than player y
+                    if (this.y <= player.y && this.y > 20) {
+                        this.y -= this.ySpeed; //keep going down
+                    }
+                }
+                if (this.y <= yWall || this.y >= canvas.height - this.h) { //until these condtions
+                    decoyRun = true;
+                }
+            }
+
+            if (this.xDistance() > 0 && decoyRun == true) {
+                if (this.x <= player.x) {
+                    this.x += this.xSpeed;
+                    this.directon = 1;
+                }
+                if (this.x >= player.x) {
+                    this.x -= this.xSpeed;
+                    this.directon = 0;
+                }
+            }
+            if (this.xDistance() <= 0 && decoyRun == true) {
+                temp = true;
+            }
+
+        }
+        if (temp == true) {
+            randomActionSelect = 1;
+        }
+
+
     }
 
-
-
-
-    distance() {
-        let y = this.y - player.y;
+    xDistance() {
         let x = this.x - player.x;
-
-        return Math.sqrt(x * x + y * y); //calculates distance between mage and player
+        return Math.sqrt(x * x); //calculates x distance in betwen knight and player
     }
+
+    yDistance() {
+        let y = this.y - player.y;
+        return Math.sqrt(y * y); //calculates y distance in between knight and player
+    }
+
 
     dodge() {
         if (inRange == true && xKeyPressed == true) {
@@ -104,10 +147,9 @@ class Knight {
         var inRange = false;
         var attacked = false;
         if ((((self.x + self.w) + (self.w * self.direction)) > (player.x)) && (((self.x - self.w) + (self.w * self.direction)) < (player.x + player.w)) && ((self.y) < (player.y + player.h)) && ((self.y + self.h) > (player.y))) {
-            inRange = true;
+            //detects if player is inside knight's attack range
+            inRange = true; //sets inRange to true
         }
-        // console.log(inRange);
-
         while (inRange == true) {
             if (attacked == false) {
                 setTimeout(() => {
@@ -119,12 +161,11 @@ class Knight {
             attacked = true;
             inRange = false;
         }
-        // console.log(attacked);
     }
 }
 
 class Archer {
-    constructor(x, y, w, h, c, xSpeed, ySpeed, maxArrows = 3) {
+    constructor(x = 0, y = 0, w = 40, h = 40, c = "orange", xSpeed = 3, ySpeed = 2, maxArrows = 3) {
         this.x = x;
         this.y = y;
         this.w = w;
@@ -170,7 +211,7 @@ class Archer {
 }
 
 class Tank {
-    constructor(x, y, w, h, c, xSpeed, ySpeed) {
+    constructor(x = 0, y = 0, w = 70, h = 70, c = "red", xSpeed = 1, ySpeed = 0.5) {
         this.x = x;
         this.y = y;
         this.w = w;
