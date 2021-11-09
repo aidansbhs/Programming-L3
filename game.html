@@ -219,7 +219,7 @@
     //enemies
     // createKnight();
     // createTank();
-    // createMage();
+    createMage();
     // createArcher();
 
     maxArcherArrows = maxPerArcher * JSON.parse(JSON.stringify(archers.length)); 
@@ -342,7 +342,7 @@
     tSize = 70;
     tYpos = Math.floor(Math.random() * (yWall - 0) + yWall); //random y wall spawn point 
     tXpos = Math.floor(Math.random() * (1650 - 1400) + 1650);
-    tXspeed = 1;
+    tYspeed = 1;
     tXspeed = 2;
 
     if (gameState == 'playing') {
@@ -357,7 +357,7 @@
     mSize = 45;
     mYpos = Math.floor(Math.random() * (yWall - 0) + yWall); //random y wall spawn point 
     mXpos = Math.floor(Math.random() * (1650 - 1400) + 1650);
-    mXspeed = 2;
+    mYspeed = 2;
     mXspeed = 4;
 
     if (gameState == 'playing') {
