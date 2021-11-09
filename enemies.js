@@ -38,20 +38,53 @@ class Knight {
                 this.y = yWall;
             }
         } else {
-            //     //decided by random who moves and who stays
-            //     //2 move towards player the rest not move or relocate
-            if ((Math.random(Math.floor() * (2 - 1) + 1)) >= 0.5) {
-                //run program a
-                for(let i = 0; i < this.length; i++){
-                    this.distance()     
-                 // finds the knight closest to player
-                   console.log(i);
-                }
-            } else {
-                //run program b
+
+            var randomActionSelect = Math.floor(Math.random() * 3);
+
+            if (randomActionSelect == 0) {
+                this.randomLocation();
+            } else if (randomActionSelect == 1) {
+                this.attackPlayer();
+            } else if (randomActionSelect == 2) {
+                this.decoy();
             }
         }
     }
+
+    randomLocation(x,y,radius) {
+        var randomLocation = [];
+        randomLocation.push(x+((Math.random() * radius * 2) + radius));
+        randomLocation.push(y+((Math.random() * radius * 2) + radius));
+    }
+
+    attackPlayer() {
+        if (this.x <= player.x) {
+            this.x += this.xSpeed;
+            this.directon = 1;
+        }
+
+        if (this.x >= player.x) {
+            this.x -= this.xSpeed;
+            this.directon = 0;
+        }
+
+        if (this.y <= player.y) {
+            this.y += this.ySpeed;
+        }
+        if (this.y >= player.y) {
+            this.y -= this.ySpeed;
+        }
+        if (this.y < yWall) {
+            this.y = yWall;
+        }
+    }
+
+    decoy() {
+        console.log('decoy');
+    }
+
+
+
 
     distance() {
         let y = this.y - player.y;
@@ -186,6 +219,7 @@ class Mage {
         this.setup = true;
         this.counter = 0;
         this.cooldown = 3;
+        this.inRange = false;
     }
     drawRect() {
         canvasContext.fillStyle = this.c;
@@ -207,7 +241,7 @@ class Mage {
         }
 
         if (this.distance() <= 600) {
-            inRange = true;
+            this.inRange = true;
             this.xSpeed = 0;
         } else {
             if (this.x > player.x + player.w) {
@@ -218,7 +252,7 @@ class Mage {
             }
         }
         if (this.distance() > 600) {
-            inRange = false;
+            this.inRange = false;
             if (this.x > player.x + player.w) {
                 this.xSpeed = 4;
             }
@@ -242,7 +276,7 @@ class Mage {
     shooting() {
         if (gameState = 'playing') {
             if (this.x < canvas.width - this.w) { //inside canvas
-                if (inRange == true && this.cooldown == 3) {
+                if (this.inRange == true && this.cooldown == 3) {
                     if (this.initialPs.length < this.maxInitialPs) {
                         this.initialPs.push(new mageInitial(player.x, player.y, 50, "white"));
                     }
