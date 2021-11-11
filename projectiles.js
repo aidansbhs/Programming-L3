@@ -39,8 +39,11 @@ class playerProjectile {
         let collided = false;
         knights.forEach(function (knight, i) {
             if (self.hitKnight(knight)) {
-                delete knights[i];
                 collided = true;
+                knight.health -= 33;
+                if(knight.health <= 0){
+                    delete knights[i];
+                }
             }
         });
         knights = knights.filter(item => item !== undefined);
@@ -52,8 +55,11 @@ class playerProjectile {
         let collided = false;
         archers.forEach(function (archer, i) {
             if (self.hitArcher(archer)) {
-                delete archers[i];
                 collided = true;
+                archer.health -= 33;
+                if(archer.health <= 0){
+                    delete archers[i];
+                }
             }
         });
         archers = archers.filter(item => item !== undefined);
@@ -65,8 +71,11 @@ class playerProjectile {
         let collided = false;
         tanks.forEach(function (tank, i) {
             if (self.hitTank(tank)) {
-                delete tanks[i];
                 collided = true;
+                tank.health -= 33;
+                if(tank.health <= 0){
+                    delete tanks[i];
+                }
             }
         });
         tanks = tanks.filter(item => item !== undefined);
@@ -77,8 +86,11 @@ class playerProjectile {
         let collided = false;
         mages.forEach(function (mage, i) {
             if (self.hitMage(mage)) {
-                delete mages[i];
                 collided = true;
+                mage.health -= 33;
+                if(mage.health <= 0){
+                    delete mages[i];
+                }
             }
         });
         mages = mages.filter(item => item !== undefined);
@@ -117,11 +129,7 @@ class archerProjectile {
         if (self.hitPlayer(player)) {
             collided = true;
             if (collided == true && player.health > 0) {
-                player.health -= 33;
-                // console.log(health);
-            }
-            if (player.health <= 0) {
-                // gameState = 'gameOver';
+                player.health -= 20 * difficultyPercentage;
             }
         }
         return collided;
@@ -175,10 +183,7 @@ class mageProjectile {
         if (self.hitPlayer(player)) {
             collided = true;
             if (collided == true && player.health > 0) {
-                player.health -= 33;
-            }
-            if (player.health <= 0) {
-                // gameState = 'gameOver';
+                player.health -= 30 * difficultyPercentage;
             }
         }
         return collided;
