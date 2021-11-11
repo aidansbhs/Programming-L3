@@ -65,13 +65,19 @@
   var levelKnightCount = 0;
   var levelTankCount = 0;
   var levelMageCount = 0;
-  var randomActionSelect = 2;
+  var kRandomActionSelect = Math.floor(Math.random() * 3);
+  var aRandomActionSelect = Math.floor(Math.random() * 3);
+  var tRandomActionSelect = Math.floor(Math.random() * 2);
 
   var singlePlayer = false;
   var multiPlayer = false;
   var gameState = 'mainMenu';
+  var name = '';
   var difficulty = 'easy';
   var difficultyPercentage = 1;
+  var maxHealth = 100;
+  var runOnce = true;
+
 
   //movement
 
@@ -129,6 +135,9 @@
         gameSetup();
       }
 
+      healthBar();
+      nextLevel();
+
       player.arrows.forEach(function (playerArrow, i, array) {
         playerArrow.drawRect();
         playerArrow.movement();
@@ -137,6 +146,7 @@
         if (playerArrow.outOfbounds() || playerArrow.knightCollision() || playerArrow.archerCollision() ||
           playerArrow.tankCollision() || playerArrow.mageCollision()) {
           delete array[i]; //if the bullet goes out of canvas it will be deleted
+          currentLevel[3][i].length-1;
           player.arrows = player.arrows.filter(item => item !== undefined);
           //checks if arrows are undefined (from when they get deleted) and will actually remove them 
         }
@@ -156,7 +166,7 @@
           archer.drawRect();
           archer.movement();
           archer.shooting();
-          
+
           archer.arrows.forEach(function (archerArrow, i, array) {
             //made an array for arrows in archers class and therefore will run for each archer, making it so the arrows are distributed equally
             archerArrow.drawRect();
@@ -183,9 +193,9 @@
           mage.drawRect();
           mage.movement();
 
-           mage.initialPs.forEach(function (mageInitial, i, array){
-              mageInitial.drawRect();
-           });
+          mage.initialPs.forEach(function (mageInitial, i, array) {
+            mageInitial.drawRect();
+          });
 
           mage.projectiles.forEach(function (mageProjectile, i, array) {
             mageProjectile.drawRect();
@@ -216,28 +226,49 @@
     yWall = canvas.height / 2.62; //y of top wall
     xWall = canvas.width / 9;
 
+    if (gameState == 'mainMenu') {
+      if (difficulty == 'easy') {
+        difficultyPercentage = 1;
+      }
+      if (difficulty == 'hard') {
+        difficultyPercentage = 1.25;
+      }
+    }
+
     //enemies
     // createKnight();
     // createTank();
     // createMage();
     // createArcher();
 
-    maxArcherArrows = maxPerArcher * JSON.parse(JSON.stringify(archers.length)); 
+    maxArcherArrows = maxPerArcher * JSON.parse(JSON.stringify(archers.length));
     //updates the max arrows for archers based on how many pushed in
 
-    currentLevel = JSON.parse(JSON.stringify(levels)); //clones the array 
+    currentLevel = JSON.parse(JSON.stringify(levels[levelCounter])); //clones the array 
 
-    if(difficulty == "easy"){
-      difficultyPercentage = 1;
-    }
-    if (difficulty == "hard") {
-      difficultyPercentage = 1.25;
+    if (runOnce) {
+
+      for (let i = 0; i < currentLevel[3].length; i++) {
+        if (currentLevel[3][i][1].toLowerCase() == "k") {
+          knightPush(...currentLevel[3][i][0]);
+        }
+        if (currentLevel[3][i][1].toLowerCase() == "a") {
+          archerPush(...currentLevel[3][i][0]);
+        }
+        if (currentLevel[3][i][1].toLowerCase() == "t") {
+          tankPush(...currentLevel[3][i][0]);
+        }
+        if (currentLevel[3][i][1].toLowerCase() == "m") {
+          magePush(...currentLevel[3][i][0]);
+        }
+      }
+      runOnce = false;
     }
 
     //player
     player.movement();
     player.depth();
-    player.collision();
+    // player.collision();
     player.attacking();
   } //end of gameSetup
 
@@ -300,6 +331,28 @@
     // }
   } //end of buttons
 
+  function nameRecorder(evt) {
+    if (evt.keyCode >= 48 && evt.keyCode <= 57) { //numbers
+      name += String.fromCharCode(evt.keyCode);
+    } else if (evt.keyCode >= 65 && evt.keyCode <= 90 || evt.keyCode == 32) { //letters + spacebar
+      if (evt.shiftKey == true) { //shift key
+        name += String.fromCharCode(evt.keyCode).toUpperCase();
+      } else {
+        name += String.fromCharCode(evt.keyCode).toLowerCase();
+      }
+    }
+    if (evt.keyCode == 8) { //delete
+      name = name.substring(0, name.length - 1);
+    }
+  } //end of nameRecorder
+
+  function healthBar() {
+    let percentage = player.health / maxHealth;
+    // var healthWidth = 200px * percentage;
+    colorRect(20, 20, canvas.width / 4 * percentage, 30, 'red');
+    // colorRect(20, 20, canvas.width / 4, 30, 'black');
+  } //end of healthBar
+
   function createKnight() {
     kSize = 50;
     kYpos = Math.floor(Math.random() * (yWall - 0) + yWall); //random y wall spawn point 
@@ -310,7 +363,7 @@
 
     if (gameState = 'playing') {
       for (let i = levelKnightCount; i < maxKnights; i++) {
-        knights.push(new Knight(kXpos, kYpos, kSize, kSize, 'yellow', kXspeed, kYspeed)); 
+        knights.push(new Knight(kXpos, kYpos, kSize, kSize, 'yellow', kXspeed, kYspeed));
         //pushes certain amount of knights based off the set max value
         levelKnightCount++; //updates the level count to how many knights have been pushed
       }
@@ -334,7 +387,7 @@
     }
   } //end of createArcher
 
-  function enemyPastCheck(array) { 
+  function enemyPastCheck(array) {
     //archers will not move unless all the knights are passed a certain point on canvas
     let cc = true;
     array.forEach(knights => { //for each knight
@@ -375,6 +428,18 @@
     }
   } //end of createMage
 
+  function nextLevel() {
+    if (currentLevel[3].length == 0) {
+      if (player.x + player.w == canvas.width) {
+        levelCounter++;
+        if(levelCounter == levelCounter + 1){
+          runOnce = false;
+        }
+        gameSetup();
+      }
+    }
+  } //end of nextLevel
+
   function mouseAction(evt) {
     var rect = canvas.getBoundingClientRect();
     var root = document.documentElement;
@@ -390,6 +455,8 @@
 
   function keyPressed(evt) {
     // mainloop();
+    nameRecorder(evt);
+
     if (evt.keyCode == A_KEY) {
       aKeyPressed = true;
     }

@@ -9,7 +9,7 @@ class Player {
         this.ySpeed = ySpeed;
         this.maxArrows = maxArrows;
         this.arrows = [];
-        this.direction = 0;
+        this.direction = 1;
         this.setup = true;
         this.health = 100;
     }
@@ -22,19 +22,11 @@ class Player {
     }
 
     movement() {
-        if (levels = [0]) {
             if (this.setup == true) {
                 this.x = canvas.width / 2;
                 this.y = canvas.height / 1.5;
                 this.setup = false;
             }
-            if (levels = [1]) {
-                if (this.setup == true) {
-
-                }
-            }
-        }
-
 
         if (aKeyPressed == true) {
             this.direction = -1;
@@ -98,40 +90,35 @@ class Player {
         }
     }
 
-    hitItem(array, name) {
-        let counter = [];
-        let self = this;
-        array.forEach(function (item, i) {
-            if ((self.x + self.w > item.x && self.x < item.x + item.w) && (self.y + self.h > item.y && self.y < item.y + item.h)) {
-                counter.push(i);
-            }
-        });
-        return [name, counter]
-    }
-  
-    hitItem(item) {
-        return (this.x + this.w > item.x && this.x < item.x + item.w) && (this.y + this.h > item.y && this.y < item.y + item.h);
-    }
+    // hitItem(array, name) {
+    //     let counter = [];
+    //     let self = this;
+    //     array.forEach(function (item, i) {
+    //         if ((self.x + self.w > item.x && self.x < item.x + item.w) && (self.y + self.h > item.y && self.y < item.y + item.h)) {
+    //             counter.push(i);
+    //         }
+    //     });
+    //     return [name, counter]
+    // }
 
-    collision() {
-        let enemy0 = this.hitItem(knights, "knights");
-        let enemy1 = this.hitItem(archers, "archers");
-        let enemy2 = this.hitItem(tanks, "tanks");
-        let enemy3 = this.hitItem(mages, "mages");
+    // collision() {
+    //     let enemy0 = this.hitItem(knights, "knights");
+    //     let enemy1 = this.hitItem(archers, "archers");
+    //     let enemy2 = this.hitItem(tanks, "tanks");
+    //     let enemy3 = this.hitItem(mages, "mages");
 
-        var collided = false;
+    //     var collided = false;
 
-        for (let i = 0; i < 4; i++) {
-            for (let ii = 0; ii < eval("enemy" + i).length; ii++) {
-                collided = true;
-            }
-        }
-        if(collided == true){
-            
-        }
-        // console.log(collided);
-        return collided;
-    }
+    //     for (let i = 0; i < 4; i++) {
+    //         for (let ii = 0; ii < eval("enemy" + i).length; ii++) {
+    //             collided = true;
+    //         }
+    //     }
+    //     if(collided == true){
+    //         console.log('working');
+    //     }
+    //     return collided;
+    // }
 
     attackRange(array,name) {
         let counter = [];

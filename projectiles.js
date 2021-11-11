@@ -116,12 +116,8 @@ class archerProjectile {
         let collided = false;
         if (self.hitPlayer(player)) {
             collided = true;
-            if (collided == true && health > 0) {
-                health -= 33;
-                // console.log(health);
-            }
-            if (health <= 0) {
-                // gameState = 'gameOver';
+            if (collided == true && player.health > 0) {
+                player.health -= 20;
             }
         }
         return collided;
@@ -159,10 +155,9 @@ class mageProjectile {
         canvasContext.fill();
     }
 
-    //create a two circles? an inital point of impact and the actual projectile
+    //create a two circles, an inital point of impact and the actual projectile
     //timer between those two circles, eg 1 second of charging up until fired
     //leave aoe fire mark that will continue to burn for 3-5 seconds
-    //long reload time, each mage can only fire one fire projectile at once, the reload is based off the impact projectile and not the fire mark
 
     hitItem(item) {
         return (this.x + this.w > item.x && this.x < item.x + item.w) && (this.y + this.h > item.y && this.y < item.y + item.h);
@@ -175,11 +170,8 @@ class mageProjectile {
         let collided = false;
         if (self.hitPlayer(player)) {
             collided = true;
-            if (collided == true && health > 0) {
-                health -= 33;
-            }
-            if (health <= 0) {
-                // gameState = 'gameOver';
+            if (collided == true && player.health > 0) {
+                player.health -= 30 * difficultyPercentage;
             }
         }
         return collided;

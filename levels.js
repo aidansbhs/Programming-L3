@@ -3,25 +3,33 @@ var levels = [
         ['imgs/Background/background1.png', cutScenes()], //background
         [''], //obstacles
         [''], //items
-        [knightPush(400, 600), knightPush(400, 400), knightPush(1200, 600), knightPush(1200, 400)] //enemies
-
+        [[[400, 600], "k"], [[400, 400], "k"], [[1200, 600], "k"], [[1200, 400], "k"]] //enemies
     ],
     [ //level 2
         ['imgs/Background/background1.png', cutScenes()],
         [''],
         ['health'],
-        [tankPush(1200, 400), archerPush(1400, 600), archerPush(1400, 200)]
+        [[[1200, 400], "t"], [[1400, 600], "a"], [[1400, 200], "a"]]
     ],
-    // [ //level 3
-    //     ['imgs/Background/background1.png', cutScenes()],
-    //     [''],
-    //     [''],
-    //     [knightPush(1100, 300), magePush(1300, 400), magePush(1300, 200)]
-    // ]
+    [ //level 3
+        ['imgs/Background/background1.png', cutScenes()],
+        [''],
+        [''],
+        [[[1100, 300], "k"], [[1300, 400], "m"], [[1300, 200], "m"]]
+    ],
+    [ //level 4
+        ['imgs/Background/background1.png', cutScenes()],
+        [''],
+        [''],
+        [[[1700, 725], "a"], [[1700, 625], "a"], [[1700, 525], "a"], [[1700, 425], "a"], [[1700, 325], "a"]]
+    ]
 ];
 
+var levelCounter = 3;
+var currentLevel;
+
 function knightPush(x, y) {
-    knights.push(new Knight(x, y));
+    knights.push(new Knight(x,y));
 } //end of knightPush
 
 function archerPush(x, y) {
@@ -36,12 +44,5 @@ function magePush(x, y) {
     mages.push(new Mage(x, y));
 } //end of magePush
 
-console.log(levels);
 
-var currentLevel;
-
-function cutScenes() {
-    if (levels == 0) {
-        console.log('hello');
-    }
-}
+function cutScenes() {}
