@@ -11,7 +11,7 @@ class Knight {
         this.setup = true;
         this.cooldown = 1;
         this.id = "knight";
-        this.health = 100 * difficultyPercentage;
+        this.health = 100;
         this.runOnce = true;
         this.attacked = false;
         this.inRange = false;
@@ -151,7 +151,6 @@ class Knight {
     }
 
     attack() {
-        // console.log(this.cooldown); 
         var self = this;
         if ((((self.x + self.w) + (self.w * self.direction)) > (player.x)) && (((self.x - self.w) + (self.w * self.direction)) < (player.x + player.w)) && ((self.y) < (player.y + player.h)) && ((self.y + self.h) > (player.y))) {
             //detects if player is inside knight's attack range
@@ -161,12 +160,16 @@ class Knight {
             player.health -= 10;
             this.cooldown--;
         }
+        if(player.health <= 0){
+            gameState = 'gameOver';
+        }
 
         setTimeout(() => {
             if (this.cooldown <= 0) {
                 this.cooldown = 1;
             }
-        }, 1000);
+        }, 1000); //doesn't work
+        // console.log(this.cooldown); 
     }
 }
 
@@ -258,12 +261,12 @@ class Tank {
     }
 
     movement() {
-        if (this.y + 1.74 * this.x <= 605) { //y=mx+c for diagonal wall
-            let rise = 1.74 / 2.74;
-            let run = 1 / 2.74;
-            this.y -= this.ySpeed * rise; //makes it able to 'slide' up the wall instead of stopping by calculating the rise and run and substituting into speed
-            this.x += this.ySpeed * run;
-        }
+        // if (this.y + 1.74 * this.x <= 605) { //y=mx+c for diagonal wall
+        //     let rise = 1.74 / 2.74;
+        //     let run = 1 / 2.74;
+        //     this.y -= this.ySpeed * rise; //makes it able to 'slide' up the wall instead of stopping by calculating the rise and run and substituting into speed
+        //     this.x += this.ySpeed * run;
+        // }
 
         if (this.y < yWall) { //can't go above the y wall
             this.y = yWall;
@@ -272,39 +275,25 @@ class Tank {
         if (this.y + this.h > canvas.height) { //can't go below canvas height
             this.y = canvas.height - this.h;
         }
-
-        if (tRandomActionSelect == 0) {
-            this.randomLocation();
-        } else if (tRandomActionSelect == 1) {
             this.attackPlayer();
-        }
-    }
-    randomLocation() {
-        var randomLocation = [];
-        let runOnce = true;
-        if (runOnce == true) {
-            randomLocation.push(((Math.random() * (canvas.width - 0)) + 0));
-            randomLocation.push(((Math.random() * (yWall - 0)) + yWall));
-            runOnce = false;
-        }
 
-        if (this.x >= randomLocation[0]) {
-            this.x -= this.xSpeed * difficultyPercentage;
-        } else if (this.x <= randomLocation[0]) {
-            this.x += this.xSpeed * difficultyPercentage;
-        }
-
-        if (this.y >= randomLocation[1]) {
-            this.y -= this.ySpeed;
-        } else if (this.x <= randomLocation[1]) {
-            this.y += this.ySpeed;
-        }
     }
     attackPlayer() {
-        this.x -= this.xSpeed * difficultyPercentage;
-
         if (this.x <= player.x) {
-            this.xSpeed = 0;
+            this.x += this.xSpeed * difficultyPercentage;
+            this.directon = 1;
+        }
+
+        if (this.x >= player.x) {
+            this.x -= this.xSpeed * difficultyPercentage;
+            this.directon = 0;
+        }
+
+        if (this.y <= player.y) {
+            this.y += this.ySpeed;
+        }
+        if (this.y >= player.y) {
+            this.y -= this.ySpeed;
         }
     }
 }

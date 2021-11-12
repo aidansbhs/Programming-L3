@@ -1,4 +1,4 @@
-class playerProjectile { 
+class playerProjectile {
     constructor(x, y, w, h, c, xSpeed, direction) {
         this.x = x;
         this.y = y;
@@ -7,10 +7,10 @@ class playerProjectile {
         this.c = c;
         this.xSpeed = xSpeed;
         this.direction = direction;
-        
+
     }
     drawRect() {
-        canvasContext.fillStyle = this.c;   
+        canvasContext.fillStyle = this.c;
         canvasContext.fillRect(this.x, this.y, this.w, this.h);
     }
     movement() {
@@ -31,7 +31,7 @@ class playerProjectile {
     hitTank(tank) {
         return this.hitItem(tank);
     }
-    hitMage(mage){
+    hitMage(mage) {
         return this.hitItem(mage);
     }
     knightCollision() {
@@ -41,13 +41,12 @@ class playerProjectile {
             if (self.hitKnight(knight)) {
                 collided = true;
                 knight.health -= 33;
-                if(knight.health <= 0){
+                if (knight.health <= 0) {
                     delete knights[i];
                 }
             }
         });
         knights = knights.filter(item => item !== undefined);
-
         return collided;
     }
     archerCollision() {
@@ -57,7 +56,7 @@ class playerProjectile {
             if (self.hitArcher(archer)) {
                 collided = true;
                 archer.health -= 33;
-                if(archer.health <= 0){
+                if (archer.health <= 0) {
                     delete archers[i];
                 }
             }
@@ -73,7 +72,7 @@ class playerProjectile {
             if (self.hitTank(tank)) {
                 collided = true;
                 tank.health -= 33;
-                if(tank.health <= 0){
+                if (tank.health <= 0) {
                     delete tanks[i];
                 }
             }
@@ -81,15 +80,15 @@ class playerProjectile {
         tanks = tanks.filter(item => item !== undefined);
         return collided;
     }
-    mageCollision(){
+    mageCollision() {
         let self = this;
         let collided = false;
         mages.forEach(function (mage, i) {
             if (self.hitMage(mage)) {
                 collided = true;
                 mage.health -= 33;
-                if(mage.health <= 0){
-                    delete mages[i];
+                if (mage.health <= 0) {
+                    delete mages[i]; //deletes the adjcent mage
                 }
             }
         });
@@ -130,6 +129,9 @@ class archerProjectile {
             collided = true;
             if (collided == true && player.health > 0) {
                 player.health -= 20 * difficultyPercentage;
+            }
+            if (player.health <= 0) {
+                gameState = 'gameOver';
             }
         }
         return collided;
@@ -184,6 +186,9 @@ class mageProjectile {
             collided = true;
             if (collided == true && player.health > 0) {
                 player.health -= 30 * difficultyPercentage;
+            }
+            if (player.health <= 0) {
+                gameState = 'gameOver';
             }
         }
         return collided;

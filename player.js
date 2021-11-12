@@ -22,10 +22,34 @@ class Player {
     }
 
     movement() {
-        if (this.setup == true) {
-            this.x = canvas.width / 2;
-            this.y = canvas.height / 1.5;
-            this.setup = false;
+        if (levelCounter == 0) {
+            if (this.setup == true) {
+                this.x = canvas.width / 2;
+                this.y = canvas.height / 1.5;
+                this.setup = false;
+            }
+        }
+        if (levelCounter == 1) {
+            if (this.setup == true) {
+                this.x = canvas.width / 2;
+                this.y = canvas.height / 1.5;
+                this.setup = false;
+            }
+        }
+
+        if (levelCounter == 2) {
+            if (this.setup == true) {
+                this.x = canvas.width / 2;
+                this.y = canvas.height / 1.5;
+                this.setup = false;
+            }
+        }
+        if (levelCounter == 3) {
+            if (this.setup == true) {
+                this.x = canvas.width / 2;
+                this.y = canvas.height / 1.5;
+                this.setup = false;
+            }
         }
 
         if (aKeyPressed == true) {
@@ -131,24 +155,24 @@ class Player {
         return [name, counter];
     }
 
-    attacking(){
-    if(xKeyPressed == true){
-        var enemy0 = this.attackRange(knights, "knights"); //returns knights inside of the attackRange hitbox ["knights,[(hit people)]"]
-        var enemy1 = this.attackRange(archers, "archers");
-        var enemy2 = this.attackRange(tanks, "tanks");
-        var enemy3 = this.attackRange(mages, "mages");
-        for (let i = 0; i < 4; i++) {
-            let run = false;
-            for (let ii = 0; ii < eval("enemy" + i)[1].length; ii++) { //runs through all the hit enemys inside attackRange
-                eval(eval("enemy" + i)[0])[eval("enemy" + i)[1][ii]] = "undefined"; //turns hit enemy to undifined - eval converts enemy variable name "knights" into the actually variable called knights 
-                run = true;
-            }
-            if(run){
-                window[eval("enemy" + i)[0]] = eval(eval("enemy" + i)[0]).filter(item => item !== "undefined"); //filters undifinded enemy from array and window will find the private variable no matter what
+    attacking() {
+        if (xKeyPressed == true) {
+            var enemy0 = this.attackRange(knights, "knights"); //returns knights inside of the attackRange hitbox ["knights,[(hit people)]"]
+            var enemy1 = this.attackRange(archers, "archers");
+            var enemy2 = this.attackRange(tanks, "tanks");
+            var enemy3 = this.attackRange(mages, "mages");
+            for (let i = 0; i < 4; i++) {
+                let run = false;
+                for (let ii = 0; ii < eval("enemy" + i)[1].length; ii++) { //runs through all the hit enemys inside attackRange
+                    eval(eval("enemy" + i)[0])[eval("enemy" + i)[1][ii]] = "undefined"; //turns hit enemy to undifined - eval converts enemy variable name "knights" into the actually variable called knights 
+                    run = true;
+                }
+                if (run) {
+                    window[eval("enemy" + i)[0]] = eval(eval("enemy" + i)[0]).filter(item => item !== "undefined"); //filters undifinded enemy from array and window will find the private variable no matter what
+                }
             }
         }
     }
-}
     shooting() {
         if (this.arrows.length < this.maxArrows) { //limits spamming arrows
             this.arrows.push(new playerProjectile(this.x + this.w / 2, this.y + this.h / 2, 10, 10, 'white', 7.5, JSON.parse(JSON.stringify(this.direction))));
@@ -156,8 +180,10 @@ class Player {
     }
 
     gameOver() {
-        canvasContext.font = '100px serif';
-        canvasContext.fillStyle = 'white';
-        canvasContext.fillText('Game Over', canvas.width / 2.7, canvas.height / 1.5);
+        if (gameState == 'gameOver') {
+            canvasContext.font = '100px serif';
+            canvasContext.fillStyle = 'white';
+            canvasContext.fillText('Game Over', canvas.width / 2.7, canvas.height / 1.5);
+        }
     }
 }

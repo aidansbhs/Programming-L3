@@ -25,7 +25,7 @@ var levels = [
     ]
 ];
 
-var levelCounter = 1;
+var levelCounter = 0;
 var currentLevel;
 
 function knightPush(x, y) {
