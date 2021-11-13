@@ -10,11 +10,14 @@ class Knight {
         this.direction = 1;
         this.setup = true;
         this.cooldown = 1;
+        this.counter = 0;
         this.id = "knight";
         this.health = 100;
-        this.runOnce = true;
-        this.attacked = false;
         this.inRange = false;
+        this.rChoiceCoolDown = 2;
+        this.rChoiceCoolDownCounter = 0;
+        this.randomActionSelect = null;
+        this.randomlocation = null;
     }
 
     drawRect() {
@@ -23,12 +26,6 @@ class Knight {
     }
 
     movement() {
-        if (this.y + 1.74 * this.x <= canvas.width / 2.644628099173554) { //y=mx+c for diagonal wall
-            let rise = 1.74 / 2.74;
-            let run = 1 / 2.74;
-
-        }
-
         if (this.y < yWall) { //can't go above the y wall
             this.y = yWall;
         }
@@ -36,107 +33,109 @@ class Knight {
         if (this.y + this.h > canvas.height) { //can't go below canvas height
             this.y = canvas.height - this.h;
         }
+        this.randomAction();
+    }
+    randomAction() {
+        if (this.rChoiceCoolDownCounter >= this.rChoiceCoolDown) {
+            this.randomActionSelect = randomMove(); //move charge attack
 
-        if (kRandomActionSelect == 0) {
-            this.randomLocation();
-        } else if (kRandomActionSelect == 1) {
-            this.attackPlayer();
-        } else if (kRandomActionSelect == 2) {
-            this.decoy();
+            if (this.randomActionSelect == "move") {
+                this.randomlocation = this.getRandomLocation();
+            } else if (this.randomActionSelect == "attack") {
+                this.rChoiceCoolDown = 3;
+
+            } else if (this.randomActionSelect == 'decoy') {
+                this.rChoiceCoolDown = 0.5;
+            }
+            this.rChoiceCoolDownCounter = 0;
+        } else {
+            this.rChoiceCoolDownCounter += 1 / frameRate;
+            if (this.randomActionSelect == "move") { //move
+                this.moveToRandomLocation(this.randomlocation);
+            } else if (this.randomActionSelect == "attack") { //attack
+                this.moveToRandomLocation([player.x, player.y]);
+                if (trigH(Math.abs((player.x + player.w / 2) - (this.x + this.w / 2)), Math.abs((player.y + player.h / 2) - (this.y + this.h / 2))) <= 40) {
+                    this.rChoiceCoolDown = 0;
+                }
+            } else if (this.randomActionSelect == "decoy") { //decoy
+                this.decoy();
+            }
         }
     }
 
-    randomLocation() {
-        var randomLocation = [];
-        if (this.runOnce == true) {
-            randomLocation.push(((Math.random() * (canvas.width - 0)) + 0));
-            randomLocation.push(((Math.random() * (yWall - 0)) + yWall));
-            this.runOnce = false;
-        }
-
-        // console.log(randomLocation);
-
-        if (this.x >= randomLocation[0]) {
+    moveToRandomLocation(pos) {
+        if (this.x > pos[0]) {
             this.x -= this.xSpeed * difficultyPercentage;
-        } else if (this.x <= randomLocation[0]) {
+        } else if (this.x < pos[0]) {
             this.x += this.xSpeed * difficultyPercentage;
         }
-
-        if (this.y >= randomLocation[1]) {
+        if (this.y > pos[1]) {
             this.y -= this.ySpeed;
-        } else if (this.x <= randomLocation[1]) {
+        } else if (this.y < pos[1]) {
             this.y += this.ySpeed;
         }
     }
 
-    attackPlayer() {
-        if (this.x <= player.x) {
-            this.x += this.xSpeed * difficultyPercentage;
-            this.directon = 1;
+    getRandomLocation() {
+        let randomLocation = [];
+        randomLocation.push(((Math.random() * (canvas.width - (canvas.width / 2.644628099173554))) + canvas.width / 2.644628099173554)); //x
+        randomLocation.push(((Math.random() * (canvas.height - yWall)) + yWall)); //y
+        if (randomLocation[0] > canvas.width - this.w) {
+            randomLocation[0] = canvas.width - this.w;
         }
-
-        if (this.x >= player.x) {
-            this.x -= this.xSpeed * difficultyPercentage;
-            this.directon = 0;
+        if (randomLocation[1] > canvas.height - this.h) {
+            randomLocation[1] = canvas.height - this.h;
         }
-
-        if (this.y <= player.y) {
-            this.y += this.ySpeed;
+        let timex = Math.abs(JSON.parse(JSON.stringify(randomLocation[0])) - this.x) / (this.xSpeed * difficultyPercentage * frameRate);
+        let timey = Math.abs(JSON.parse(JSON.stringify(randomLocation[1])) - this.y) / (this.ySpeed * frameRate);
+        if (timex > timey) {
+            this.rChoiceCoolDown = timex;
+        } else {
+            this.rChoiceCoolDown = timey;
         }
-        if (this.y >= player.y) {
-            this.y -= this.ySpeed;
-        }
+        return randomLocation;
     }
 
     decoy() {
         var decoyRun = false;
-        var changeAction = false;
         var pathing = Math.floor(Math.random() * 2);
 
-        if (changeAction == false) {
 
-            if (decoyRun == false) { //has not performed the decoy run yet
-                if (this.y == player.y) { //if knight y is equal to player's y
-                    if (pathing == 0) { //if randomised pathing equals to option 0
-                        if (this.y >= player.y && this.y > 280) {
-                            this.y += this.ySpeed; //go up
-                        }
-                    } else if (pathing == 1) { //if randomised pathing equals to option 1
-                        if (this.y <= player.y && this.y > 20) {
-                            this.y -= this.ySpeed; //go down
-                        }
-                    }
-                }
-                if (this.y > player.y) { //if knight y already greater than player y
+        if (decoyRun == false) { //has not performed the decoy run yet
+            if (this.y == player.y) { //if knight y is equal to player's y
+                if (pathing == 0) { //if randomised pathing equals to option 0
                     if (this.y >= player.y && this.y > 280) {
-                        this.y += this.ySpeed; //keeping going up
+                        this.y += this.ySpeed; //go up
                     }
-                } else if (this.y < player.y) { //if knight y is less than player y
+                } else if (pathing == 1) { //if randomised pathing equals to option 1
                     if (this.y <= player.y && this.y > 20) {
-                        this.y -= this.ySpeed; //keep going down
+                        this.y -= this.ySpeed; //go down
                     }
                 }
-                if (this.y <= yWall || this.y >= canvas.height - this.h) { //until these condtions
-                    decoyRun = true;
+            }
+            if (this.y > player.y) { //if knight y already greater than player y
+                if (this.y >= player.y && this.y > 280) {
+                    this.y += this.ySpeed; //keeping going up
+                }
+            } else if (this.y < player.y) { //if knight y is less than player y
+                if (this.y <= player.y && this.y > 20) {
+                    this.y -= this.ySpeed; //keep going down
                 }
             }
-
-            if (this.xDistance() > 0 && decoyRun == true) {
-                if (this.x <= player.x) {
-                    this.x += this.xSpeed * difficultyPercentage;
-                    this.direction = 1;
-                }
-                if (this.x >= player.x) {
-                    this.x -= this.xSpeed * difficultyPercentage;
-                    this.direction = -1;
-                }
-            }
-            if (this.xDistance() <= 0 && decoyRun == true) {
-                changeAction = true;
+            if (this.y <= yWall || this.y >= canvas.height - this.h) { //until these condtions
+                decoyRun = true;
             }
         }
-        if (changeAction == true) {
-            kRandomActionSelect = 1;
+
+        if (this.xDistance() > 0 && decoyRun == true) {
+            if (this.x <= player.x) {
+                this.x += this.xSpeed * difficultyPercentage;
+                this.direction = 1;
+            }
+            if (this.x >= player.x) {
+                this.x -= this.xSpeed * difficultyPercentage;
+                this.direction = -1;
+            }
         }
     }
 
@@ -151,25 +150,22 @@ class Knight {
     }
 
     attack() {
-        var self = this;
+        var self = JSON.parse(JSON.stringify(this));
         if ((((self.x + self.w) + (self.w * self.direction)) > (player.x)) && (((self.x - self.w) + (self.w * self.direction)) < (player.x + player.w)) && ((self.y) < (player.y + player.h)) && ((self.y + self.h) > (player.y))) {
             //detects if player is inside knight's attack range
             this.inRange = true; //sets inRange to true
+        } else {
+            this.inRange = false;
         }
-        if (this.inRange == true && this.cooldown == 1 && player.health > 0) {
-            player.health -= 10;
-            this.cooldown--;
+        if (this.counter < this.cooldown) {
+            this.counter += 1 / frameRate;
+        } else if (this.inRange == true && player.health > 0) {
+            this.counter = 0;
+            player.health -= 15;
         }
-        if(player.health <= 0){
+        if (player.health <= 0) {
             gameState = 'gameOver';
         }
-
-        setTimeout(() => {
-            if (this.cooldown <= 0) {
-                this.cooldown = 1;
-            }
-        }, 1000); //doesn't work
-        // console.log(this.cooldown); 
     }
 }
 
@@ -184,11 +180,12 @@ class Archer {
         this.ySpeed = ySpeed;
         this.maxArrows = maxArrows;
         this.arrows = [];
-        this.direction = 1;
+        this.direction = -1;
         this.cooldown = 1;
         this.setup = true;
         this.id = "archer";
         this.health = 60 * difficultyPercentage;
+        this.counter = 0;
     }
 
     drawRect() {
@@ -197,11 +194,16 @@ class Archer {
     }
 
     movement() {
-
-        if(this.checkPast(tanks)){
+        if (this.checkPast(tanks)) {
             if (this.x > 1300) {
                 this.x -= this.xSpeed * difficultyPercentage;
             }
+        }
+        if (player.x >= this.x) {
+            this.direction = -1;
+        }
+         if (player.x <= this.x) {
+            this.direction = 1;
         }
 
         if (this.y < yWall) {
@@ -224,25 +226,19 @@ class Archer {
     shooting() {
         if (gameState == 'playing') {
             if (this.x < canvas.width - this.w) {
-                if (this.cooldown == 1) {
+                if (this.counter < this.cooldown) {
                     if (this.arrows.length < this.maxArrows) { //limits spamming arrows
-                        this.arrows.push(new archerProjectile(this.x + this.w / 2, this.y + this.h / 2, 10, 10, "red", -7.5));
-                        this.cooldown--;
+                        this.arrows.push(new archerProjectile(this.x + this.w / 2, this.y + this.h / 2, 10, 10, "red", -7.5, JSON.parse(JSON.stringify(this.direction))));
+                        this.counter = 0;
                     }
                 }
-                setTimeout(() => {
-                    if (this.cooldown == 0) {
-                        this.cooldown = 1;
-                    }
-                }, 1000);
-                // console.log(this.cooldown);
             }
         }
     }
 }
 
 class Tank {
-    constructor(x = 0, y = 0, w = 70, h = 70, c = "red", xSpeed = 1, ySpeed = 0.5) {
+    constructor(x = 0, y = 0, w = 70, h = 70, c = "darkgrey", xSpeed = 1, ySpeed = 0.5) {
         this.x = x;
         this.y = y;
         this.w = w;
@@ -254,6 +250,9 @@ class Tank {
         this.setup = true;
         this.id = "tank";
         this.health = 150 * difficultyPercentage;
+        this.inRange = false;
+        this.counter = 0;
+        this.cooldown = 1;
     }
     drawRect() {
         canvasContext.fillStyle = this.c;
@@ -261,23 +260,15 @@ class Tank {
     }
 
     movement() {
-        // if (this.y + 1.74 * this.x <= 605) { //y=mx+c for diagonal wall
-        //     let rise = 1.74 / 2.74;
-        //     let run = 1 / 2.74;
-        //     this.y -= this.ySpeed * rise; //makes it able to 'slide' up the wall instead of stopping by calculating the rise and run and substituting into speed
-        //     this.x += this.ySpeed * run;
-        // }
-
         if (this.y < yWall) { //can't go above the y wall
             this.y = yWall;
         }
-
         if (this.y + this.h > canvas.height) { //can't go below canvas height
             this.y = canvas.height - this.h;
         }
-            this.attackPlayer();
-
+        this.attackPlayer();
     }
+
     attackPlayer() {
         if (this.x <= player.x) {
             this.x += this.xSpeed * difficultyPercentage;
@@ -296,10 +287,29 @@ class Tank {
             this.y -= this.ySpeed;
         }
     }
+
+    attack() {
+        var self = JSON.parse(JSON.stringify(this));
+        if ((((self.x + self.w / 1.5) + (self.w * self.direction)) > (player.x)) && (((self.x - self.w * 1.5) + (self.w * self.direction)) < (player.x + player.w)) && ((self.y) < (player.y + player.h)) && ((self.y + self.h) > (player.y))) {
+            //detects if player is inside knight's attack range
+            this.inRange = true; //sets inRange to true
+        } else {
+            this.inRange = false;
+        }
+        if (this.counter < this.cooldown) {
+            this.counter += 1 / frameRate;
+        } else if (this.inRange == true && player.health > 0) {
+            this.counter = 0;
+            player.health -= 10;
+        }
+        if (player.health <= 0) {
+            gameState = 'gameOver';
+        }
+    }
 }
 
 class Mage {
-    constructor(x, y, w, h, c, xSpeed, ySpeed, maxProjectiles = 1, maxInitialPs = 1) {
+    constructor(x = 0, y = 0, w = 40, h = 40, c = "purple", xSpeed = 2, ySpeed = 2, maxProjectiles = 1, maxInitialPs = 1) {
         this.x = x;
         this.y = y;
         this.w = w;
@@ -332,7 +342,7 @@ class Mage {
     }
 
     movement() {
-        if (this.distance() <= 600) {
+        if (this.distance() <= canvas.width / 2.6667) {
             this.inRange = true;
             this.xSpeed = 0;
         } else {
@@ -345,7 +355,7 @@ class Mage {
                 this.direction = -1;
             }
         }
-        if (this.distance() > 600) {
+        if (this.distance() > canvas.width / 2.6667) {
             this.inRange = false;
             if (this.x > player.x + player.w) {
                 this.xSpeed = 4 * difficultyPercentage;
@@ -356,17 +366,15 @@ class Mage {
         }
 
         if (difficulty == 'hard') {
-            if (this.distance() <= 150 && teleported == false) {
+            if (this.distance() <= canvas.width / 10.667 && teleported == false) {
                 //disapear
-                teleported = true;
-                //wait 0.5 seconds
                 this.x = Math.floor(Math.random() * ((canvas.width - this.w) - (0) + (canvas.width - this.w)));
+                teleported = true;
                 //reapear
             }
         }
-
-
     }
+
     shooting() {
         if (gameState = 'playing') {
             if (this.x < canvas.width - this.w) { //inside canvas

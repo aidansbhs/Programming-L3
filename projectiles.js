@@ -7,7 +7,6 @@ class playerProjectile {
         this.c = c;
         this.xSpeed = xSpeed;
         this.direction = direction;
-
     }
     drawRect() {
         canvasContext.fillStyle = this.c;
@@ -40,10 +39,15 @@ class playerProjectile {
         knights.forEach(function (knight, i) {
             if (self.hitKnight(knight)) {
                 collided = true;
+                knight.c = 'red'; 
                 knight.health -= 33;
                 if (knight.health <= 0) {
                     delete knights[i];
                 }
+
+                setTimeout(() => {
+                    knight.c = 'yellow'
+                }, 500);
             }
         });
         knights = knights.filter(item => item !== undefined);
@@ -55,10 +59,14 @@ class playerProjectile {
         archers.forEach(function (archer, i) {
             if (self.hitArcher(archer)) {
                 collided = true;
+                archer.c = 'red';
                 archer.health -= 33;
                 if (archer.health <= 0) {
                     delete archers[i];
                 }
+                setTimeout(() => {
+                    archer.c = 'orange'
+                }, 500);
             }
         });
         archers = archers.filter(item => item !== undefined);
@@ -71,10 +79,14 @@ class playerProjectile {
         tanks.forEach(function (tank, i) {
             if (self.hitTank(tank)) {
                 collided = true;
+                tank.c = 'red';
                 tank.health -= 33;
                 if (tank.health <= 0) {
                     delete tanks[i];
                 }
+                setTimeout(() => {
+                    tank.c = 'red'
+                }, 500);
             }
         });
         tanks = tanks.filter(item => item !== undefined);
@@ -86,10 +98,14 @@ class playerProjectile {
         mages.forEach(function (mage, i) {
             if (self.hitMage(mage)) {
                 collided = true;
+                mage.c = 'red';
                 mage.health -= 33;
                 if (mage.health <= 0) {
                     delete mages[i]; //deletes the adjcent mage
                 }
+                setTimeout(() => {
+                    mage.c = 'purple'
+                }, 500);
             }
         });
         mages = mages.filter(item => item !== undefined);
@@ -98,13 +114,14 @@ class playerProjectile {
 }
 
 class archerProjectile {
-    constructor(x, y, w, h, c, xSpeed) {
+    constructor(x, y, w, h, c, xSpeed, direction) {
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
         this.c = c;
         this.xSpeed = xSpeed;
+        this.direction = direction;
     }
     drawRect() {
         canvasContext.fillStyle = this.c;
@@ -129,9 +146,6 @@ class archerProjectile {
             collided = true;
             if (collided == true && player.health > 0) {
                 player.health -= 20 * difficultyPercentage;
-            }
-            if (player.health <= 0) {
-                gameState = 'gameOver';
             }
         }
         return collided;
@@ -161,6 +175,7 @@ class mageProjectile {
         this.y = y;
         this.r = r;
         this.c = c;
+        this.hit = false;
     }
     drawRect() {
         canvasContext.fillStyle = this.c;
@@ -170,11 +185,9 @@ class mageProjectile {
     }
 
     //create a two circles, an inital point of impact and the actual projectile
-    //timer between those two circles, eg 1 second of charging up until fired
-    //leave aoe fire mark that will continue to burn for 3-5 seconds
 
     hitItem(item) {
-        return (this.x + this.w > item.x && this.x < item.x + item.w) && (this.y + this.h > item.y && this.y < item.y + item.h);
+        return (this.x + this.r > item.x && this.x < item.x + item.w) && (this.y + this.r > item.y && this.y < item.y + item.h);
     }
     hitPlayer(player) {
         return this.hitItem(player);
@@ -184,12 +197,14 @@ class mageProjectile {
         let collided = false;
         if (self.hitPlayer(player)) {
             collided = true;
-            if (collided == true && player.health > 0) {
-                player.health -= 30 * difficultyPercentage;
+            if (collided == true && this.hit == false) {
+                player.health -= 25 * difficultyPercentage;
+                this.hit = true;
             }
-            if (player.health <= 0) {
-                gameState = 'gameOver';
-            }
+            // if (player.health <= 0) {
+            //     console.log('workig')
+            //     gameState = 'gameOver';
+            // }
         }
         return collided;
     }

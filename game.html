@@ -42,8 +42,18 @@
       mouseDown = false;
     });
 
-    setInterval(mainloop, 1000 / 50);
+    setInterval(mainloop, 1000 / frameRate);
+
+    if(localStorage.getItem("last") == null){
+      localStorage.setItem("last", 0);
+    }
+    localStorage.setItem("leaderboard", JSON.stringify([])) 
   }
+
+  var frameRate = 50;
+
+  var cW = 20;
+  var cH = 20;
 
   var mouseX = 0;
   var mouseY = 0;
@@ -51,32 +61,19 @@
 
   var yWall = 0;
 
-  var arrowCount = 0;
   var maxArcherArrows = 0; //updated in main loop
   var maxPerArcher = 3;
 
-  var maxArchers = 3;
-  var maxKnights = 3;
-  var maxTanks = 3;
-  var maxMages = 3;
-
-  var levelArcherCount = 0;
-  var levelKnightCount = 0;
-  var levelTankCount = 0;
-  var levelMageCount = 0;
-  var kRandomActionSelect = Math.floor(Math.random() * 3);
-  var aRandomActionSelect = Math.floor(Math.random() * 3);
-  var tRandomActionSelect = Math.floor(Math.random() * 2);
-
-  // var singlePlayer = false;
-  // var multiPlayer = false;
   var gameState = 'mainMenu';
   var name = '';
   var difficulty = 'easy';
   var difficultyPercentage = 1;
   var maxHealth = 100;
-  var runOnce = true;
 
+  var timer = 0;
+  var score = (15 * difficultyPercentage) - (timer / frameRate);
+  var lastScore = 0;
+  localStorage.setItem("last", 0);
 
   //movement
 
@@ -102,8 +99,8 @@
   //player 1 
   var pXpos = 0;
   var pYpos = 0;
-  var pXspeed = 5;
-  var pYspeed = 5;
+  var pXspeed = 200;
+  var pYspeed = 200;
   const P_SIZE = 40;
 
   var player = new Player(pXpos, pYpos, P_SIZE, P_SIZE, 'blue', pXspeed, pYspeed);
@@ -121,14 +118,25 @@
   var mageProjectiles = [];
 
   function mainloop() {
-    // console.log(gameState);
     if (gameState == 'playing') {
+
+      timer++;
 
       drawImage(imageAssets.background1, 0, 0, canvas.width, canvas.height); //bg    
 
+      nextLevel();
       gameSetup();
       healthBar();
-      nextLevel();
+      endGame();
+      tips();
+
+      window.localStorage.setItem("leaderboard", JSON.stringify([[name, score]]));
+
+
+      knights = knights.filter(item => item.health >= 0); //filters knight if health is less than 0
+      archers = archers.filter(item => item.health >= 0); //filters archers if health is less than 0
+      tanks = tanks.filter(item => item.health >= 0); //filters tanks if health is less than 0
+      mages = mages.filter(item => item.health >= 0); //filters mages if health is less than 0
 
       player.arrows.forEach(function (playerArrow, i, array) {
         playerArrow.drawRect();
@@ -176,9 +184,9 @@
         tanks.forEach(function (tank, i, array) {
           tank.drawRect();
           tank.movement();
+          tank.attack();
         });
       } //end of tanks
-
       if (mages.length > 0) { //mages
         mages.forEach(function (mage, i, array) {
           mage.drawRect();
@@ -190,70 +198,106 @@
 
           mage.projectiles.forEach(function (mageProjectile, i, array) {
             mageProjectile.drawRect();
+            mageProjectile.playerCollision();
 
-            if (mageProjectile.playerCollision()) {
-              delete array[i];
-              mage.projectiles = mageProjectiles.filter(item => item !== undefined);
-            }
           });
           mage.shooting(); //only shoots after projectiles have been drawed
         });
-
       } //end of mage & mage projectiles
+
       player.drawRect();
+      player.attacking();
+
+      if (player.health <= 0) {
+        gameState = 'gameOver';
+      }
+
+
     } else if (gameState == 'mainMenu') {
       drawMenu();
-    } else if (gameState == 'gameOver') {
-      player.gameOver();
-    }
+    } else if (gameState == "gameOver") {
+      player.health = 0;
+      drawText('Game Over', canvas.width / 2.65, canvas.height / 1.8, "100px serif", "red");
+      drawSquare(canvas.width / 2.2, canvas.height / 1.5, canvas.width / 8, canvas.height / 12, "orange");
+      drawText("Restart", canvas.width / 2.04, canvas.height / 1.38, "30px serif", "black");
+  } else if (gameState == 'end') {
+    drawImage(imageAssets.menuScreen, 0, 0, canvas.width, canvas.height); //end game screen
+    drawSquare(canvas.width / 3.8, canvas.height / 3.2, canvas.width / 2.2, canvas.height / 1.7, "orange");
+    drawText("Well done " + name + "!", canvas.width / 2.3, canvas.height / 2.5, "30px serif", "black");
+    drawText(" You beat the game in: " + timer / frameRate, canvas.width / 2.5, canvas.height / 1.9, "30px serif",
+      "black");
+    drawText("Your score was: " + score, canvas.width / 2.4, canvas.height / 1.5, "30px serif", "black");
+
+    drawText("Previous score: " + JSON.parse(window.localStorage.getItem("leaderboard"))[0][1], canvas.width / 2.37, canvas.height / 1.2,
+      "30px serif", "black");
+  }
   } //end of mainloop
+  function levelsetup() {
+    currentLevel = JSON.parse(JSON.stringify(levels[levelCounter])); //clones the array 
+    player.x = canvas.width / currentLevel[4][0]; //player starting position
+    if (currentLevel[4].length > 1) {
+      player.y = canvas.width / currentLevel[4][1];
+    }
+    for (let i = 0; i < currentLevel[3].length; i++) { //pushes the enemies from level based on id
+      if (currentLevel[3][i][1].toLowerCase() == "k") {
+        knightPush(...currentLevel[3][i][0]);
+      }
+      if (currentLevel[3][i][1].toLowerCase() == "a") {
+        archerPush(...currentLevel[3][i][0]);
+      }
+      if (currentLevel[3][i][1].toLowerCase() == "t") {
+        tankPush(...currentLevel[3][i][0]);
+      }
+      if (currentLevel[3][i][1].toLowerCase() == "m") {
+        magePush(...currentLevel[3][i][0]);
+      }
+    }
+  };
 
   function gameSetup() {
-    if (gameState == "mainMenu" || "playing")
-      if (difficulty == 'easy') {
-        difficultyPercentage = 1;
-      }
-    if (difficulty == 'hard') {
-      difficultyPercentage = 1.25;
-    }
-
-      drawLine(canvasContext, [170, 300], [-2, 600], 'black', 5); //diagonal
-      drawLine(canvasContext, [168, 300], [1600, 300], 'black', 5); //straight horizontal
-      colorRect(170, 302.5, canvas.width, canvas.height, '#8b5a2b'); //brown floor rectangle
-      drawTriangle();
+    drawLine(canvasContext, [170, 300], [-2, 600], 'black', 5); //diagonal
+    drawLine(canvasContext, [168, 300], [1600, 300], 'black', 5); //straight horizontal
+    colorRect(170, 302.5, canvas.width, canvas.height, '#8b5a2b'); //brown floor rectangle
+    drawTriangle();
 
     yWall = canvas.height / 2.62; //y of top wall
 
     maxArcherArrows = maxPerArcher * JSON.parse(JSON.stringify(archers.length));
     //updates the max arrows for archers based on how many pushed in
 
-    currentLevel = JSON.parse(JSON.stringify(levels[levelCounter])); //clones the array 
-
-    if (runOnce) {
-
-      for (let i = 0; i < currentLevel[3].length; i++) {
-        if (currentLevel[3][i][1].toLowerCase() == "k") {
-          knightPush(...currentLevel[3][i][0]);
-        }
-        if (currentLevel[3][i][1].toLowerCase() == "a") {
-          archerPush(...currentLevel[3][i][0]);
-        }
-        if (currentLevel[3][i][1].toLowerCase() == "t") {
-          tankPush(...currentLevel[3][i][0]);
-        }
-        if (currentLevel[3][i][1].toLowerCase() == "m") {
-          magePush(...currentLevel[3][i][0]);
-        }
-      }
-      runOnce = false;
-    }
-
     //player
     player.movement();
     player.depth();
-    // player.collision();
-    player.attacking();
   } //end of gameSetup
+
+  function trigH(a, b) {
+    let c = Math.abs(a) + 0.1;
+    let d = Math.abs(b) + 0.1;
+    return Math.sqrt(Math.pow(c, 2) + Math.pow(d, 2));
+  } //end of trigH
+
+  function randomMove(x) {
+    let move = Math.floor(Math.random() * 100) + 1; //1-100
+    if (move > 0 && move <= 35 && x !== "m") {
+      return "move";
+    } else if (move > 35 && move <= 60 && x !== "m") {
+      return "attack";
+    } else {
+      return "decoy";
+    }
+  } //end of randomMove
+
+  function tips() {
+    if (levelCounter == 0) {
+      if (knights.length > 0) {
+        drawText("Defeat the enemies " + name + "!", canvas.width / 2.4, canvas.height / 4, "30px serif", "black");
+      }
+      if (knights.length <= 0) {
+        drawText("Move to the right of the screen to get to next level", canvas.width / 2.9, canvas.height / 4,
+          "30px serif", "black");
+      }
+    }
+  } //end of tips
 
   function loadImages() { //images are stored here
     imgs = [];
@@ -263,6 +307,8 @@
     imgs.menuScreen.src = 'imgs/Background/menuScreen.png'; //menu screen
     imgs.instructions = new Image();
     imgs.instructions.src = '';
+    imgs.player = new Image();
+    imgs.player.src = 'imgs/Sprites/Player.png';
     return imgs;
   } //end of loadImages
 
@@ -272,7 +318,8 @@
     var yBox = canvas.height / 2.5; //cordinates of boxes
     for (let i = 0; i < 3; i++) { //for loop for 3 boxes
       drawSquare(xBox, yBox + (i * (85 + 35)), 250, 85, 'grey')
-      if (mouseY > yBox + (i * (85 + 35)) && mouseX > xBox && mouseY < yBox + (i * (85 + 35) + 85) && mouseX < xBox +
+      if (mouseY > yBox + (i * (85 + 35)) && mouseX > xBox && mouseY < yBox + (i * (85 + 35) + 85) && mouseX <
+        xBox +
         250) { //hitbox for when mouse goes over boxes
         colorRect(xBox, yBox + (i * (85 + 35)), 250, 85, 'rgb(0,0,0,0.2'); //hover
       }
@@ -287,13 +334,18 @@
       var xBox = canvas.width / 2 - 130; //cordinates of boxes
       var yBox = canvas.height / 2.5; //cordinates of boxes
       for (let i = 0; i < 3; i++) { //for loop for 3 boxes
-        if (mouseY > yBox + (i * (85 + 35)) && mouseX > xBox && mouseY < yBox + (i * (85 + 35) + 85) && mouseX < xBox +
+        if (mouseY > yBox + (i * (85 + 35)) && mouseX > xBox && mouseY < yBox + (i * (85 + 35) + 85) && mouseX <
+          xBox +
           250) { //hitbox for when mouse goes over boxes
           if (i == 0 && mouseDown == true && x == "run") {
             gameState = 'easy';
+            difficulty = 'easy';
+            difficultyPercentage = 1;
           }
           if (i == 1 && mouseDown == true && x == "run") {
             gameState = 'hard';
+            difficulty = 'hard';
+            difficultyPercentage = 1.25;
           }
           if (i == 2 && mouseDown == true && x == "run") {
             gameState = 'instructions';
@@ -308,11 +360,40 @@
       drawText("Name:", canvas.width / 2.16, canvas.height / 2.6, '30px serif', 'black'); //title for name
       drawSquare(canvas.width / 2.58, canvas.height / 2.3, canvas.width / 5, canvas.height / 10,
         "white"); //white box for name
+      drawText("Press enter to continue", canvas.width / 2.3, canvas.height / 1.7, "20px serif", 'black');
       drawText(name, canvas.width / 2.5, canvas.height / 2, '25px serif', 'black'); //drawing the name
+    }
+    if (gameState == 'instructions') {
+      drawImage(imageAssets.menuScreen, 0, 0, canvas.width, canvas.height); //menu screen
+      drawSquare(canvas.width / 3.8, canvas.height / 3.2, canvas.width / 2.2, canvas.height / 2, "orange");
+      drawText("This is a 2d hack and slash type game", canvas.width / 2.7, canvas.height / 2.3, '25px serif', 'black');
+      drawText("Progress the game by defeating enemies and clearing the level", canvas.width / 3.35, canvas.height /
+        1.85, '25px serif', 'black');
+      drawText("Player controls: WASD for movement, X to attack, Q to shoot", canvas.width / 3.35, canvas.height / 1.5,
+        '25px serif', 'black');
+      drawSquare(canvas.width / 25, canvas.height / 15, canvas.width / 8, canvas.height / 12, "orange");
+      drawText("Back", canvas.width / 13, canvas.height / 8.2, "30px serif", "black");
+
+      if (mouseY > canvas.height / 15 && mouseY < (canvas.height / 15 + canvas.height / 12) && mouseX > canvas.width /
+        25 && mouseX < (canvas.width / 25 + canvas.width / 8)) {
+        colorRect(canvas.width / 25, canvas.height / 15, canvas.width / 8, canvas.height / 12, 'rgb(0,0,0,0.2'); //hover
+        if (mouseDown == true && x == 'run') {
+          gameState = "mainMenu";
+        }
+      }
+    }
+    if(gameState == "gameOver"){
+      if (mouseY > canvas.height / 1.5 && mouseY < (canvas.height / 1.5 + canvas.height / 12) && mouseX > canvas.width /
+        2.2 && mouseX < (canvas.width / 2.2 + canvas.width / 8)) {
+        colorRect(canvas.width / 2.2, canvas.height / 1.5, canvas.width / 8, canvas.height / 12, "rgb(0,0,0,0.2)");
+        if(mouseDown == true && x == "run"){
+          location.reload();
+        }
+      }
     }
   } //end of buttons
 
-  function nameRecorder(evt) {
+  function nameRecorder(evt) { //key codes for inputing username
     if (gameState == 'easy' || gameState == 'hard') {
       let maxDistance = canvas.width;
       // if(canvasContext.measureText(name.width) <= maxDistance){
@@ -325,14 +406,28 @@
           name += String.fromCharCode(evt.keyCode).toLowerCase(); //push an lowercase letter
         }
       }
+      if (gameState == 'easy' || gameState == 'hard') {
+        drawImage(imageAssets.menuScreen, 0, 0, canvas.width, canvas.height); //menu screen
+        drawSquare(canvas.width / 2.9, canvas.height / 3.2, canvas.width / 3.5, canvas.height / 2.5,
+          "orange"); //orange box
+        drawText("Name:", canvas.width / 2.16, canvas.height / 2.6, '30px serif', 'black'); //title for name
+        drawSquare(canvas.width / 2.58, canvas.height / 2.3, canvas.width / 5, canvas.height / 10,
+          "white"); //white box for name
+        drawText("Press enter to continue", canvas.width / 2.3, canvas.height / 1.7, "20px serif", 'black');
+        drawText(name, canvas.width / 2.5, canvas.height / 2, '25px serif', 'black'); //drawing the name
+      }
       // }
       if (evt.keyCode == 8) { //delete
         name = name.substring(0, name.length - 1);
       }
     }
+    if (name.length <= 0 && evt.keyCode == 13) {
+      drawText("Please type a name", canvas.width / 2.3, canvas.height / 2.03, '20px serif', 'red'); //drawing the name
+    }
 
-    if (evt.keyCode == 13 && name.length > 0) { //enter  
+    if (evt.keyCode == 13 && name.length > 0 && (gameState == "easy" || gameState == "hard")) { //enter  
       gameState = 'playing'; //starts game
+      levelsetup();
     }
 
   } //end of nameRecorder
@@ -344,25 +439,23 @@
   } //end of healthBar
 
   function nextLevel() {
-    if (levelCounter == 0) {
-      if (knights.length == 0) {
-        if (player.x + player.w == canvas.width) {
-          levelCounter = 1;
-          gameSetup();
-          runOnce = true;
-        }
-      }
-    }
-    if (levelCounter == 1) {
-      if (archers.length == 0 && tanks.length == 0) {
-        if (player.x + player.w == canvas.width) {
-          levelCounter = 2;
-          gameSetup();
-          runOnce = true;
-        }
+    if (knights.length == 0 && archers.length == 0 && tanks.length == 0 && mages.length == 0) {
+      if (player.x + player.w >= canvas.width) {
+        levelCounter++;
+        levelsetup();
       }
     }
   } //end of nextLevel
+
+  function endGame() {
+    if (levelCounter == 3) {
+      if (knights.length == 0 && archers.length == 0 && tanks.length == 0 && mages.length == 0) {
+        if (player.x + player.w >= canvas.width) {
+          gameState = "end";
+        }
+      }
+    }
+  } //end of endGame
 
   function mouseAction(evt) {
     var rect = canvas.getBoundingClientRect();
@@ -445,9 +538,9 @@
 
   function drawTriangle() {
     canvasContext.beginPath();
-    canvasContext.moveTo(0, 602.5);
+    canvasContext.moveTo(0, canvas.height / 1.32780083);
     canvasContext.lineTo(canvas.width, canvas.height);
-    canvasContext.lineTo(168, 304.5);
+    canvasContext.lineTo(canvas.width / 9.523809524, canvas.height / 2.627578);
     canvasContext.fill();
   } //end of drawTriangle
 

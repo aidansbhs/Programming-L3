@@ -3,25 +3,29 @@ var levels = [
         ['imgs/Background/background1.png', cutScenes()], //background
         [''], //obstacles
         [''], //items
-        [[[400, 600], "k"], [[400, 400], "k"], [[1200, 600], "k"], [[1200, 400], "k"]] //enemies
+        [[[cW * 20, cH * 30], "k"], [[cW * 20, cH * 20], "k"], [[cW * 60, cH * 30], "k"], [[cW * 60, cH * 20], "k"]], //enemies
+        [2.5]
     ],
     [ //level 2
         ['imgs/Background/background1.png', cutScenes()],
         [''],
         ['health'],
-        [[[1200, 450], "t"], [[1400, 600], "a"], [[1400, 300], "a"]]
+        [[[cW * 60, cW * 22.5], "t"], [[cW * 70, cH * 20], "a"], [[cW * 70, cH * 30], "a"]],
+        [4]
     ],
     [ //level 3
         ['imgs/Background/background1.png', cutScenes()],
         [''],
         [''],
-        [[[1100, 300], "k"], [[1300, 400], "m"], [[1300, 200], "m"]]
+        [[[cW * 55, cH * 25], "k"], [[cW * 65, cH * 30], "m"], [[cW * 65, cH * 20], "m"]],
+        [4]
     ],
     [ //level 4
         ['imgs/Background/background1.png', cutScenes()],
         [''],
         [''],
-        [[[1700, 725], "a"], [[1700, 625], "a"], [[1700, 525], "a"], [[1700, 425], "a"], [[1700, 325], "a"]]
+        [[[cW * 85, cH * 36.25], "a"], [[cW * 85, cH * 31.25], "a"], [[cW * 85, cH * 26.25], "a"], [[cW * 85, cH * 21.25], "a"], [[cW * 85, cH * 16.25], "a"]],
+        [4]
     ]
 ];
 
@@ -45,4 +49,6 @@ function magePush(x, y) {
 } //end of magePush
 
 
-function cutScenes() {}
+function cutScenes() {
+
+}
